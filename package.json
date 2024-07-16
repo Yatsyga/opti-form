@@ -1,0 +1,40 @@
+{
+  "name": "immutable-form",
+  "version": "0.0.1",
+  "description": "Form logic for React with immutable controls and value",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yatsyga/immutable-form.git"
+  },
+  "keywords": [
+    "React",
+    "Form"
+  ],
+  "author": "Yarilko",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/Yatsyga/immutable-form/issues"
+  },
+  "homepage": "https://github.com/Yatsyga/immutable-form#readme",
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.14.10",
+    "@types/react": "^18.3.3",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.2",
+    "typescript": "^5.5.3"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1"
+  },
+  "dependencies": {
+    "rimraf": "^6.0.1"
+  }
+}
