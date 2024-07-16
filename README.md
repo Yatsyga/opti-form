@@ -66,9 +66,9 @@ interface IFormValue {
     surname?: string;
     middleName?: string;
 }
-```tsx
-To create and use form with that type you would need to call useOptiForm:
 ```
+To create and use form with that type you would need to call useOptiForm:
+```tsx
 const result = useOptiForm<IFormValue>({
     getFieldsData: () => ({
         name: createBasic({ noValueError: { message: 'Value is required' } }),
@@ -76,7 +76,7 @@ const result = useOptiForm<IFormValue>({
         middleName: createBasic({})
     })
 });
-```tsx
+```
 **createBasic** creates control data for basic value types like string, boolean, number, Date or File;
 **noValueError** must be provided to required controls. By types it can not be provided to optional controls. This is the error that will be thrown if control value is not set.
 
