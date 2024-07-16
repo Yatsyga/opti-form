@@ -26,20 +26,32 @@ It has two generic arguments, first is value type, second is optional validation
 
 ### Input props
 **getFieldsData**: callback that returns description of form structure;
+
 **context**: validation context value. Optional;
+
 **validationType**: validation type for entire form. By default it's always, which means controls will always be validated. Other possible values are onlyTouched (only touched controls are validated), and never (controls will not be validated);
+
 **defaultValue**: default value for form, optional;
+
 **value**: value for form, optional;
 
 ### Output props
 **value**: current form value. Instance changes only when value changes;
+
 **fields**: object with controls, fits form structure;
+
 **isValid**: boolean, is true if no control validation fails;
+
 **isValidating**: boolean, is true if any control is in the process of async validation;
+
 **isTouched**: boolean, is true if any control is touched;
+
 **isDirty**: boolean, is true if any control is dirty (current value is not equal to default value);
+
 **applyFlatErrorsList**: callback to apply errors to form, can be used to apply validation errors received from backend;
+
 **getValidValue**: callback that returns promise. Promise is resolved with either valid value if all validation passes, or with null, if there is any validation error. Promise will be resolved only after all async validation finishes. If there is no active or required async validation, then promise will be resolved instantly;
+
 **reset**: callback that resets form value. Has three arguments - defaultValue, value and keepTouched. If value is not provided it will equal defaultValue. If keepTouched === true, then isTouched prop for each control will not be changed. If provided no argument at all, will reset to current default value.
 
 ## Usage
