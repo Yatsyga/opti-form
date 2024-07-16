@@ -7,8 +7,9 @@ OptiForm is a React library that provides form management solutions, ensuring an
 - **Strong TypeScript Support**: Enjoy comprehensive type safety throughout your form logic, reducing bugs and improving maintainability.
 - **Optimized Performance**: OptiForm minimizes re-renders and improves performance by updating only changed nodes in the form's data structure.
 - **Simplicity and Ease of Use**: Straightforward API that makes complex form handling as simple as possible.
+- **Logic does not depend on render**: You can render any control however you like or not render them at all, it will not affect validation or any other form logic at all.
 
-Unfortunately opti-form is not usable without strict mode.
+Unfortunately as of now opti-form is not usable without strict mode.
 
 ## Installation
 
@@ -59,13 +60,13 @@ Before you start using form you first need to provide form structure data. It's 
 
 ### Basic example
 For example, you have the following form:
-```
+```tsx
 interface IFormValue {
     name: string;
     surname?: string;
     middleName?: string;
 }
-```
+```tsx
 To create and use form with that type you would need to call useOptiForm:
 ```
 const result = useOptiForm<IFormValue>({
@@ -75,12 +76,12 @@ const result = useOptiForm<IFormValue>({
         middleName: createBasic({})
     })
 });
-```
+```tsx
 **createBasic** creates control data for basic value types like string, boolean, number, Date or File;
 **noValueError** must be provided to required controls. By types it can not be provided to optional controls. This is the error that will be thrown if control value is not set.
 
 Then you just need to create control renderers. Here is basic example:
-```
+```tsx
 import { FC } from 'react';
 import { useInputValue } from 'opti-form';
 
@@ -106,7 +107,7 @@ Also you can wrap it in memo, as control's instance will be changed only if any 
 Public props are: value, defaultValue, error, isValid, isValidating, isDirty, isTouched.
 
 And to finally render form:
-```
+```tsx
 <Input control={result.fields.name} />
 <Input control={result.fields.middleName} />
 <Input control={result.fields.surname} />
@@ -114,7 +115,7 @@ And to finally render form:
 
 ### Example with validation
 For same form value type.
-```
+```tsx
 const result = useOptiForm<IFormValue>({
     getFieldsData: () => ({
         name: createBasic({
@@ -134,7 +135,7 @@ In this example form will also show error for name if it equals 'forbidden';
 It will also return async error for surname for same value.
 
 ### Example with context
-```
+```tsx
 const result = useOptiForm<IFormValue, string>({
     getFieldsData: () => ({
         name: createBasic({
@@ -156,7 +157,7 @@ const result = useOptiForm<IFormValue, string>({
 In this example name and surname will have validation errors if they match provided context. Also for each control that uses validation you need to also provide prop usesContext === true, otherwise context type in validation callback will be inferred as never, and in runtime context will not be provided.
 
 ### Basic example with object control
-```
+```tsx
 interface IPerson {
     name: string;
     surname: string;
@@ -169,7 +170,7 @@ interface IFormValue {
 ```
 
 For these types create the form like this:
-```
+```tsx
 const result = useOptiForm<IFormValue>({
     getFieldsData: () => ({
         groupName: createBasic({ noValueError: { message: 'No value' } }),
@@ -184,7 +185,7 @@ const result = useOptiForm<IFormValue>({
 });
 ```
 You can create person renderer like this:
-```
+```tsx
 const PersonRenderer: FC<{ control: TControl<IPerson> }> = ({control}) => {
     return <div>
         {control.error && control.error.message}
@@ -195,13 +196,13 @@ const PersonRenderer: FC<{ control: TControl<IPerson> }> = ({control}) => {
 }
 ```
 And then call this renderer:
-```
+```tsx
 return <PersonRenderer control={result.fields.founder} />;
 ```
 
 ### Example with descendants context
 You can provide callback for object control that will generate new context for it's children props:
-```
+```tsx
 const result = useOptiForm<IFormValue>({
     getFieldsData: () => ({
         groupName: createBasic({ noValueError: { message: 'No value' } }),
@@ -229,14 +230,14 @@ Unfortunately due to Typescript limitations if you object creates descendants co
 
 ### Example with array control
 The only key difference between object and array controls is that array can create and delete child controls.
-```
+```tsx
 interface IFormValue {
     groupName: string;
     employees: IPerson[];
 }
 ```
 Create form like this:
-```
+```tsx
 const result = useOptiForm<IFormValue>({
     getFieldsData: () => ({
         groupName: createBasic({ noValueError: { message: 'No value' } }),
@@ -253,7 +254,7 @@ const result = useOptiForm<IFormValue>({
 });
 ```
 Then create renderer:
-```
+```tsx
 const EmployeesRenderer: FC<{ control: TControl<IPerson[]> }> = ({control}) => {
     return <div>
         {control.error && control.error.message}

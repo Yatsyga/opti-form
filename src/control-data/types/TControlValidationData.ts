@@ -16,6 +16,11 @@ export type TControlValidationData<Value, Context> = TNullToOptionalUndefined<{
          * If true, then validation context will be provided to validate callback
          */
         usesContext: true;
+        /**
+         * Validation callback for control. If new noValue error is provided, this callback will be called only if value is defined.
+         * @param value control value
+         * @param context since usesContext === true, this callback will receive validation context as second argument.
+         */
         validate: TValidateControl<Value, Context>;
       }
     | {
@@ -27,6 +32,11 @@ export type TControlValidationData<Value, Context> = TNullToOptionalUndefined<{
          * If true, then validation context will be provided to validate callback
          */
         usesContext?: false;
+        /**
+         * Validation callback for control. If new noValue error is provided, this callback will be called only if value is defined.
+         * @param value control value
+         * Since usesContext === false | undefined, this callback will not receive validation context as second argument.
+         */
         validate?: TValidateControl<Value, never>;
       }
   );
