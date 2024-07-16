@@ -82,7 +82,7 @@ const result = useOptiForm<IFormValue>({
 Then you just need to create control renderers. Here is basic example:
 ```
 import { FC } from 'react';
-import { useInputValue } from 'immutable-form';
+import { useInputValue } from 'opti-form';
 
 export const Input: FC<{ control: TControl<string> }> = ({ control }) => {
     const [value, setValue] = useInputValue(control);

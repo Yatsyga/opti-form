@@ -1,6 +1,6 @@
 {
   "name": "opti-form",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Form logic for React with immutable controls and value",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Yatsyga/immutable-form.git"
+    "url": "git+https://github.com/Yatsyga/opti-form.git"
   },
   "keywords": [
     "React",
@@ -20,9 +20,9 @@
   "author": "Yarilko",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/Yatsyga/immutable-form/issues"
+    "url": "https://github.com/Yatsyga/opti-form/issues"
   },
-  "homepage": "https://github.com/Yatsyga/immutable-form#readme",
+  "homepage": "https://github.com/Yatsyga/opti-form#readme",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
