@@ -27,6 +27,19 @@ interface IResult<Value extends TControlObjectValue> {
   reset: (props?: TResetProps<Value>) => void,
 }
 
+/**
+ * This hook will provide you will form tree data.
+ * Props are:
+ * @param getFieldsData this callback must return a tree structure that must fit provided
+ * Value type and be created with createObject, createArray and createBasic methods
+ * @param context this value is required only if you are using context for validation in child controls
+ * @param validationType type of validation for form.
+ * By default value is FormValidationType.always, which means that every control that has validation will be validated after each value or context change.
+ * Other possible values are: FormValidationType.onlyTouched, which is same is always, but only touched controls are validated.
+ * And FormValidationType.never, which means that no control is validated.
+ * @param defaultValue: default value for form. This value matters only on first render, for changing defaultValue after first render use reset method.
+ * @param value: initial value for form. By default equals defaultValue. This value matters only on first render, for changing value after first render use reset method.
+ */
 // @ts-expect-error: Typescript believes that this overload signature does not fit the implementation.
 // Probably because of using "never" here, which I can not get rid of.
 export function useOptiForm<Value extends TControlObjectValue>(props: Omit<IProps<Value, never>, 'context'>): IResult<Value>
@@ -36,7 +49,7 @@ export function useOptiForm<Value extends TControlObjectValue, Context>({
   context,
   validationType = FormValidationType.always,
   defaultValue,
-  value,
+  value = defaultValue,
 }: IProps<Value, Context>): IResult<Value> {
   const [fieldsData] = useState<TControlDataFields<Value, Context>>(getFieldsData);
 

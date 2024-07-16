@@ -11,6 +11,7 @@
       "outDir": "./dist",
       "rootDir": "./src",
       "types": ["node", "jest"],
+      "moduleResolution": "Node"
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "tests/**/*.ts"],
   "exclude": ["node_modules", "dist", "*/__tests__/*"]
