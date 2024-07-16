@@ -1,8 +1,8 @@
 {
   "name": "opti-form",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Form logic for React with immutable controls and value",
-  "main": "bundle.js",
+  "main": "dist/index.js",
   "types": "index.d.ts",
   "scripts": {
     "clean": "rimraf dist",
@@ -42,5 +42,8 @@
   },
   "dependencies": {
     "rimraf": "^6.0.1"
-  }
+  },
+  "files": [
+    "dist/**/*"
+  ]
 }
