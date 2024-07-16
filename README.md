@@ -8,6 +8,8 @@ ImmutableForm is a React library that provides form management solutions, ensuri
 - **Optimized Performance**: ImmutableForm minimizes re-renders and improves performance by updating only changed nodes in the form's data structure.
 - **Simplicity and Ease of Use**: Straightforward API that makes complex form handling as simple as possible.
 
+Unfortunately immutable-form is not usable without strict mode.
+
 ## Installation
 
 To install ImmutableForm, use npm or yarn:
@@ -38,7 +40,7 @@ It has two generic arguments, first is value type, second is optional validation
 **isDirty**: boolean, is true if any control is dirty (current value is not equal to default value);
 **applyFlatErrorsList**: callback to apply errors to form, can be used to apply validation errors received from backend;
 **getValidValue**: callback that returns promise. Promise is resolved with either valid value if all validation passes, or with null, if there is any validation error. Promise will be resolved only after all async validation finishes. If there is no active or required async validation, then promise will be resolved instantly;
-**reset**: callback that resets form value. Has three arguments - defaultValue, value and keepTouched. If value is not provided it will equal defaultValue. If keepTouched === true, then isTouched prop for each control will not be changed.
+**reset**: callback that resets form value. Has three arguments - defaultValue, value and keepTouched. If value is not provided it will equal defaultValue. If keepTouched === true, then isTouched prop for each control will not be changed. If provided no argument at all, will reset to current default value.
 
 ## Usage
 Before you start using form you first need to provide form structure data. It's a tree structure, with leaf being basic control (boolean, number, string, Date, File). And branches are object and array controls. Key difference between array and object is that array can remove and add children.
