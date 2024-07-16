@@ -12,7 +12,8 @@ export function createControlValidate<Value, Context>(
 ): TControlValidationProps<Value, Context> {
   const validationDebounceMs =
     typeof props.validationDebounceMs === 'number' && props.validationDebounceMs > 0 ? props.validationDebounceMs : 0;
-  const noValueError: TControlError | undefined = (props as any).noValueError;
+  // @ts-expect-error: "noValueError" does not exist on props. Which is obviously wrong. Need to investigate later
+  const noValueError: TControlError | undefined = props.noValueError;
 
   return {
     validate: (props.validate ?? (() => null)) as TValidateControl<Value, Context>,

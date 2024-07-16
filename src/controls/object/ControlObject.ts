@@ -7,9 +7,9 @@ import { TControlObjectValue } from '../../values';
 import { AbstractControl } from '../AbstractControl';
 import { TControl } from '../TControl';
 import {
-    TControlSetValueExtraProps,
-    TGetControlDescendantsValidationType,
-    TOnControlReady,
+  TControlSetValueExtraProps,
+  TGetControlDescendantsValidationType,
+  TOnControlReady,
 } from '../types';
 import { Comparator, Validator } from '../utils';
 import { TObjectChildrenStoreCallbacks } from './TObjectChildrenStoreCallbacks';
@@ -54,6 +54,9 @@ export class ControlObject<
     return new ControlObject<Value>(props, state) as TControl<Value>;
   }
 
+  /**
+   * Map of child controls
+   */
   public readonly fields: TFormFields<Value>;
   public readonly isDirty: boolean;
   public readonly isValid: boolean;
@@ -122,6 +125,9 @@ export class ControlObject<
     }
   }
 
+  /**
+   * Marks control as touched
+   */
   public onTouch(): void {
     for (const key in this.fields) {
       this.fields[key].onTouch();

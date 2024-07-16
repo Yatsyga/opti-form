@@ -98,6 +98,9 @@ export class ControlBasic<Value> extends AbstractControl<
     this.emitChanges(updates);
   }
 
+  /**
+   * Marks control as touched
+   */
   public readonly onTouch = (): void => {
     if (this.isTouched) {
       return;

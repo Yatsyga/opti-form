@@ -50,6 +50,9 @@ export class ControlArray<
     return new ControlArray<Value>(props, state) as TControl<Value>;
   }
 
+  /**
+   * Array of child controls
+   */
   public readonly list: TControlArrayItem<Value[number]>[];
   public readonly isDirty: boolean;
   public readonly isValid: boolean;
@@ -134,10 +137,16 @@ export class ControlArray<
     }
   }
 
+  /**
+   * Marks control as touched
+   */
   public onTouch(): void {
     this.list.forEach(({ control }) => control.onTouch());
   }
 
+  /**
+   * Adds provided values to the end of child controls list
+   */
   public push(...values: TControlValue<Value[number]>[]): void {
     const changes: IChanges<Value> = {};
     if (values.length > 0) {
@@ -160,6 +169,9 @@ export class ControlArray<
     }
   }
 
+  /**
+   * Removes all child controls
+   */
   public clear(extraProps?: TControlSetValueExtraProps): void {
     this.setValue([] as unknown as TControlValue<Value>, extraProps);
   }

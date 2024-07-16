@@ -26,13 +26,28 @@ interface IProps<Value, UpdateData extends TControlUpdateData<Value>> {
 }
 
 export abstract class AbstractControl<Value, UpdateData extends TControlUpdateData<Value>> {
+  /**
+   * Field path from form root. For example, someField.someOtherField[1].finalField
+   */
   public get name(): string {
     return this.names.dynamic;
   }
 
+  /**
+   * Is true if current value does not equal default value
+   */
   public abstract readonly isDirty: boolean;
+  /**
+   * Is true if this control or any of it's descendants do not have any validation errors
+   */
   public abstract readonly isValid: boolean;
+  /**
+   * Is true if this control or any of it's descendants have async validation in progress
+   */
   public abstract readonly isValidating: boolean;
+  /**
+   * Current control error
+   */
   public abstract readonly error: TControlError | null;
   public abstract readonly isTouched: boolean;
 
@@ -96,6 +111,9 @@ export abstract class AbstractControl<Value, UpdateData extends TControlUpdateDa
     this.childValidationType = this.getChildValidationType(this.validationType, this.value);
   }
 
+  /**
+   * Resets control value to default value
+   */
   public reset(): void {
     this.setValue(this.defaultValue);
   }

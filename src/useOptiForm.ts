@@ -16,29 +16,49 @@ interface IProps<Value extends TControlObjectValue, Context = never> {
 }
 
 interface IResult<Value extends TControlObjectValue> {
+  /**
+   * Current form value. Is immutable and only changes instance if form value changed
+   */
   value: TControlValue<Value>;
+  /**
+   * Map of top-level form controls
+   */
   fields: TFormFields<Value>;
+  /**
+   * Whether or not form contains validation errors
+   */
   isValid: boolean;
+  /**
+   * Whether or not form is currently validating, can be true only if any control has async validation
+   */
   isValidating: boolean;
+  /**
+   * Whether or not any control is touched
+   */
   isTouched: boolean;
+  /**
+   * Whether or not current form value differs from default value
+   */
   isDirty: boolean;
+  /**
+   * Applies errors list to form. Useful if you have backend validation and need to apply validation result to form
+   */
   applyFlatErrorsList: (errors: TControlExternalErrorFlat[]) => void,
+  /**
+   * Returns promise that is resolved either with form value that fits the Value param (not TControlValue wrapper) or null.
+   * Will be resolved with null if form contains any validation errors and with value otherwise.
+   * If async validation is in progress, will be resolved after validation finishes, otherwise will be resolved instantly.
+   */
   getValidValue: () => Promise<Value | null>,
+  /**
+   * Resets the form.
+   * If no arg is provided will reset current value to current default value and mark all controls as not touched.
+   */
   reset: (props?: TResetProps<Value>) => void,
 }
 
 /**
- * This hook will provide you will form tree data.
- * Props are:
- * @param getFieldsData this callback must return a tree structure that must fit provided
- * Value type and be created with createObject, createArray and createBasic methods
- * @param context this value is required only if you are using context for validation in child controls
- * @param validationType type of validation for form.
- * By default value is FormValidationType.always, which means that every control that has validation will be validated after each value or context change.
- * Other possible values are: FormValidationType.onlyTouched, which is same is always, but only touched controls are validated.
- * And FormValidationType.never, which means that no control is validated.
- * @param defaultValue: default value for form. This value matters only on first render, for changing defaultValue after first render use reset method.
- * @param value: initial value for form. By default equals defaultValue. This value matters only on first render, for changing value after first render use reset method.
+ * Creates form tree based on provided structure and provides all necessary data and methods
  */
 // @ts-expect-error: Typescript believes that this overload signature does not fit the implementation.
 // Probably because of using "never" here, which I can not get rid of.
