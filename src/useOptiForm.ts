@@ -1,5 +1,5 @@
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
-import { ImmutableForm } from './ImmutableForm';
+import { OptiForm } from './OptiForm';
 import { TControlExternalErrorFlat } from './TControlExternalErrorFlat';
 import { TControlValue } from './TControlValue';
 import { TControlDataFields } from './control-data';
@@ -29,9 +29,9 @@ interface IResult<Value extends TControlObjectValue> {
 
 // @ts-expect-error: Typescript believes that this overload signature does not fit the implementation.
 // Probably because of using "never" here, which I can not get rid of.
-export function useImmutableForm<Value extends TControlObjectValue>(props: Omit<IProps<Value, never>, 'context'>): IResult<Value>
-export function useImmutableForm<Value extends TControlObjectValue, Context>(props: IProps<Value, Context>): IResult<Value>
-export function useImmutableForm<Value extends TControlObjectValue, Context>({
+export function useOptiForm<Value extends TControlObjectValue>(props: Omit<IProps<Value, never>, 'context'>): IResult<Value>
+export function useOptiForm<Value extends TControlObjectValue, Context>(props: IProps<Value, Context>): IResult<Value>
+export function useOptiForm<Value extends TControlObjectValue, Context>({
   getFieldsData,
   context,
   validationType = FormValidationType.always,
@@ -40,8 +40,8 @@ export function useImmutableForm<Value extends TControlObjectValue, Context>({
 }: IProps<Value, Context>): IResult<Value> {
   const [fieldsData] = useState<TControlDataFields<Value, Context>>(getFieldsData);
 
-  const [form, setForm] = useState<ImmutableForm<Value, Context>>(() =>
-    ImmutableForm.create({
+  const [form, setForm] = useState<OptiForm<Value, Context>>(() =>
+    OptiForm.create({
       fieldsData,
       value,
       defaultValue,

@@ -1,5 +1,5 @@
 import { TControlValue } from '../TControlValue';
-import { ITestFormValue, TestForm, TestImmutableFormStateCollector, cloneDeep, testForbiddenSurname } from './utils';
+import { ITestFormValue, TestForm, TestFormStateCollector, cloneDeep, testForbiddenSurname } from './utils';
 
 const testValue: TControlValue<ITestFormValue> = {
   title: 'zinga',
@@ -37,7 +37,7 @@ function recursiveFreeze(value: any) {
 }
 recursiveFreeze(testValue);
 
-describe('ImmutableForm', () => {
+describe('OptiForm', () => {
   describe('Form creation', () => {
     test('Should put correct props to all controls', () => {
       const forbiddenNames = ['alex'];
@@ -69,7 +69,7 @@ describe('ImmutableForm', () => {
       };
 
       const testForm = new TestForm({ value, defaultValue: testValue, context: new Set(forbiddenNames) });
-      const collector = new TestImmutableFormStateCollector({
+      const collector = new TestFormStateCollector({
         value,
         defaultValue: testValue,
         testForm,
@@ -104,7 +104,7 @@ describe('ImmutableForm', () => {
     newValue!.other!.splice(1, 1);
     testForm.form.fields.other.list[1].delete();
     await testForm.waitForUpdate();
-    const collector = new TestImmutableFormStateCollector({
+    const collector = new TestFormStateCollector({
       value: newValue,
       defaultValue: testValue,
       testForm,
@@ -132,7 +132,7 @@ describe('ImmutableForm', () => {
     await testForm.waitForUpdate();
     testForm.form.reset();
     await testForm.waitForUpdate();
-    const collector = new TestImmutableFormStateCollector({
+    const collector = new TestFormStateCollector({
       value: testValue,
       defaultValue: testValue,
       testForm,
@@ -146,7 +146,7 @@ describe('ImmutableForm', () => {
 
     testForm.form.setContext(forbiddenSurnames);
     await testForm.waitForUpdate();
-    const collector = new TestImmutableFormStateCollector({
+    const collector = new TestFormStateCollector({
       value: testValue,
       defaultValue: testValue,
       testForm,

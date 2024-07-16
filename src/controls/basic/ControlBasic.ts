@@ -5,7 +5,7 @@ import { TControlUpdateData } from '../../types';
 import { FormValidationType, TControlError } from '../../validation';
 import { AbstractControl } from '../AbstractControl';
 import { TControl } from '../TControl';
-import { IImmutableFormControlSetValueExtraProps, TOnImmutableFormControlReady } from '../types';
+import { TControlSetValueExtraProps, TOnControlReady } from '../types';
 import { Comparator, Validator } from '../utils';
 
 interface IProps<Value> {
@@ -16,7 +16,7 @@ interface IProps<Value> {
   context: unknown;
   validationType: FormValidationType;
   names: TControlNames;
-  onReady: TOnImmutableFormControlReady<Value>;
+  onReady: TOnControlReady<Value>;
   onChange: (updateData: TControlUpdateData<Value>) => void;
 }
 
@@ -77,7 +77,7 @@ export class ControlBasic<Value> extends AbstractControl<
 
   public setValue(
     newValuePre: TControlValue<Value>,
-    extraProps?: IImmutableFormControlSetValueExtraProps
+    extraProps?: TControlSetValueExtraProps
   ): void {
     const newValue: TControlValue<Value> = newValuePre === '' ? undefined : newValuePre;
     const reqExtraProps = this.getRequiredSetValueExtraProps(extraProps);

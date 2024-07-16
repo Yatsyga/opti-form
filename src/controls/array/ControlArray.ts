@@ -6,7 +6,7 @@ import { FormValidationType, TControlError } from '../../validation';
 import { TControlArrayValue } from '../../values';
 import { AbstractControl } from '../AbstractControl';
 import { TControl } from '../TControl';
-import { IImmutableFormControlSetValueExtraProps, TOnImmutableFormControlReady } from '../types';
+import { TControlSetValueExtraProps, TOnControlReady } from '../types';
 import { Comparator, Validator } from '../utils';
 import { TArrayChildrenStoreCallbacks } from './TArrayChildrenStoreCallbacks';
 import { TArrayExtraUpdateProps } from './TArrayExtraUpdateProps';
@@ -21,7 +21,7 @@ interface IProps<Value extends TControlArrayValue> {
   context: unknown;
   validationType: FormValidationType;
   names: TControlNames;
-  onReady: TOnImmutableFormControlReady<Value>;
+  onReady: TOnControlReady<Value>;
   onChange: (updateData: TControlUpdateData<Value>) => void;
 }
 
@@ -75,7 +75,7 @@ export class ControlArray<
       names,
       validationType,
       needContextForDescendantsContext: data.needContextForDescendantsContext,
-      onReady: onReady as TOnImmutableFormControlReady<Value>,
+      onReady: onReady as TOnControlReady<Value>,
       onChange,
     });
 
@@ -95,7 +95,7 @@ export class ControlArray<
 
   public setValue(
     newValue: TControlValue<Value>,
-    extraProps?: IImmutableFormControlSetValueExtraProps
+    extraProps?: TControlSetValueExtraProps
   ): void {
     const reqExtraProps = this.getRequiredSetValueExtraProps(extraProps);
     const newValueArr = newValue ?? ([] as unknown as NonNullable<TControlValue<Value>>);
@@ -160,7 +160,7 @@ export class ControlArray<
     }
   }
 
-  public clear(extraProps?: IImmutableFormControlSetValueExtraProps): void {
+  public clear(extraProps?: TControlSetValueExtraProps): void {
     this.setValue([] as unknown as TControlValue<Value>, extraProps);
   }
 

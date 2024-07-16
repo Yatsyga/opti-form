@@ -1,4 +1,5 @@
-export * from './IImmutableFormControlInternalCallbacks';
-export * from './IImmutableFormControlSetValueExtraProps';
-export * from './TGetImmutableFormControlDescendantsValidationType';
-export * from './TOnImmutableFormControlReady';
+export * from './TControlInternalCallbacks';
+export * from './TControlSetValueExtraProps';
+export * from './TGetControlDescendantsValidationType';
+export * from './TOnControlReady';
+

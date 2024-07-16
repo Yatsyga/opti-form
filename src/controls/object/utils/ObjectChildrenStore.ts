@@ -2,15 +2,15 @@ import { TControlValue } from '../../../TControlValue';
 import { TControlData, TControlDataFields } from '../../../control-data';
 import { TControlNames } from '../../../names';
 import {
-  TControlCustomError,
-  TControlUpdateData,
-  TFormFields,
+    TControlCustomError,
+    TControlUpdateData,
+    TFormFields,
 } from '../../../types';
 import { FormValidationType } from '../../../validation';
 import { TControlObjectValue } from '../../../values';
 import { TControl } from '../../TControl';
 import { createControl } from '../../createControl';
-import { IImmutableFormControlInternalCallbacks } from '../../types';
+import { TControlInternalCallbacks } from '../../types';
 import { Comparator, ControlChildrenStatesStore } from '../../utils';
 import { TObjectChildrenStoreCallbacks } from '../TObjectChildrenStoreCallbacks';
 import { TObjectExtraUpdateProps } from '../TObjectExtraUpdateProps';
@@ -27,7 +27,7 @@ interface IProps<Value extends TControlObjectValue, DescendantsContext> {
 type TChildrenMap<Value extends TControlObjectValue> = {
   [Key in keyof Value]: {
     control: TControl<Value[Key]>;
-    callbacks: IImmutableFormControlInternalCallbacks<Value[Key], TControlUpdateData<Value[Key]>>;
+    callbacks: TControlInternalCallbacks<Value[Key], TControlUpdateData<Value[Key]>>;
   };
 };
 
@@ -117,7 +117,7 @@ export class ObjectChildrenStore<
 
     for (const keyStr in this.fieldsData) {
       const key = keyStr as string & keyof TFormFields<Value>;
-      let callbacks = {} as IImmutableFormControlInternalCallbacks<
+      let callbacks = {} as TControlInternalCallbacks<
         Value[typeof key],
         TControlUpdateData<Value[typeof key]>
       >;

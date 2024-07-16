@@ -7,9 +7,9 @@ import { TControlObjectValue } from '../../values';
 import { AbstractControl } from '../AbstractControl';
 import { TControl } from '../TControl';
 import {
-  IImmutableFormControlSetValueExtraProps,
-  TGetImmutableFormControlDescendantsValidationType,
-  TOnImmutableFormControlReady,
+    TControlSetValueExtraProps,
+    TGetControlDescendantsValidationType,
+    TOnControlReady,
 } from '../types';
 import { Comparator, Validator } from '../utils';
 import { TObjectChildrenStoreCallbacks } from './TObjectChildrenStoreCallbacks';
@@ -24,7 +24,7 @@ interface IProps<Value extends TControlObjectValue> {
   context: unknown;
   validationType: FormValidationType;
   names: TControlNames;
-  onReady: TOnImmutableFormControlReady<Value>;
+  onReady: TOnControlReady<Value>;
   onChange: (updateData: TControlUpdateData<Value>) => void;
   createChildNames: (names: TControlNames, key: keyof Value & string) => TControlNames;
 }
@@ -94,7 +94,7 @@ export class ControlObject<
       needContextForDescendantsContext: data.needContextForDescendantsContext,
       names,
       validationType,
-      onReady: onReady as TOnImmutableFormControlReady<Value>,
+      onReady: onReady as TOnControlReady<Value>,
       onChange,
     });
 
@@ -114,7 +114,7 @@ export class ControlObject<
 
   public setValue(
     newValue: TControlValue<Value>,
-    extraProps?: IImmutableFormControlSetValueExtraProps
+    extraProps?: TControlSetValueExtraProps
   ): void {
     const reqExtraProps = this.getRequiredSetValueExtraProps(extraProps);
     for (const key in this.fields) {
@@ -146,7 +146,7 @@ export class ControlObject<
     this.state.childrenStore.destroy();
   }
 
-  protected readonly getChildValidationType: TGetImmutableFormControlDescendantsValidationType<Value> = (
+  protected readonly getChildValidationType: TGetControlDescendantsValidationType<Value> = (
     currentType,
     value
   ) => {

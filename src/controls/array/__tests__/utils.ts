@@ -11,7 +11,7 @@ import { TControlUpdateData } from '../../../types';
 import { FormValidationType, TValidateControl } from '../../../validation';
 import { TControl } from '../../TControl';
 import { createControl } from '../../createControl';
-import { IImmutableFormControlInternalCallbacks } from '../../types';
+import { TControlInternalCallbacks } from '../../types';
 
 export type TTestArray = string[];
 
@@ -53,9 +53,9 @@ export function createTestControl<Context = unknown, DescendantsContext = Contex
   needContextForDescendantsContext,
 }: IProps<Context, DescendantsContext>): [
   TControl<TTestArray>,
-  IImmutableFormControlInternalCallbacks<TTestArray, TControlUpdateData<TTestArray>>,
+  TControlInternalCallbacks<TTestArray, TControlUpdateData<TTestArray>>,
 ] {
-  let callbacks = {} as IImmutableFormControlInternalCallbacks<TTestArray, TControlUpdateData<TTestArray>>;
+  let callbacks = {} as TControlInternalCallbacks<TTestArray, TControlUpdateData<TTestArray>>;
 
   const control = createControl<TTestArray, Context>({
     data: createArray<TTestArray, unknown, unknown>(

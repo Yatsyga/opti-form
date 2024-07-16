@@ -9,7 +9,7 @@ import { TControlObjectValue } from './values';
 
 interface IConstantProps<Value extends TControlObjectValue, Context = null> {
   fieldsData: TControlDataFields<Value, Context>;
-  onChange?: (newForm: ImmutableForm<Value, Context>) => void;
+  onChange?: (newForm: OptiForm<Value, Context>) => void;
 }
 
 interface IProps<Value extends TControlObjectValue, Context = null> {
@@ -24,11 +24,11 @@ interface IUpdateData<Value extends TControlObjectValue> {
   external?: TControlUpdateData<Value>;
 }
 
-export class ImmutableForm<Value extends TControlObjectValue, Context = null> {
+export class OptiForm<Value extends TControlObjectValue, Context = null> {
   public static create<Value extends TControlObjectValue, Context>(
     props: TFormCreationProps<Value, Context>
-  ): ImmutableForm<Value, Context> {
-    return new ImmutableForm(
+  ): OptiForm<Value, Context> {
+    return new OptiForm(
       {
         fieldsData: props.fieldsData,
       },
@@ -44,8 +44,8 @@ export class ImmutableForm<Value extends TControlObjectValue, Context = null> {
   private static modify<Value extends TControlObjectValue, Context>(
     constantProps: IConstantProps<Value, Context>,
     state: FormState<Value, Context>
-  ): ImmutableForm<Value, Context> {
-    return new ImmutableForm(constantProps, state);
+  ): OptiForm<Value, Context> {
+    return new OptiForm(constantProps, state);
   }
 
   public get fields(): TFormFields<Value> {
@@ -111,7 +111,7 @@ export class ImmutableForm<Value extends TControlObjectValue, Context = null> {
     this.modifyExternalUpdate({ context });
   }
 
-  public setOnChange(callback: (newForm: ImmutableForm<Value, Context>) => void): void {
+  public setOnChange(callback: (newForm: OptiForm<Value, Context>) => void): void {
     this.constantProps.onChange = callback;
   }
 
@@ -189,7 +189,7 @@ export class ImmutableForm<Value extends TControlObjectValue, Context = null> {
         return;
       }
 
-      this.constantProps.onChange?.(ImmutableForm.modify(this.constantProps, this.state));
+      this.constantProps.onChange?.(OptiForm.modify(this.constantProps, this.state));
     }, 0);
   }
 

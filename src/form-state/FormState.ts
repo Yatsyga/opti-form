@@ -1,10 +1,10 @@
 import { TControlValue } from '../TControlValue';
 import {
-  TControlDataFields,
-  TControlDataObject,
-  createObject,
+    TControlDataFields,
+    TControlDataObject,
+    createObject,
 } from '../control-data';
-import { IImmutableFormControlInternalCallbacks } from '../controls';
+import { TControlInternalCallbacks } from '../controls';
 import { ControlObject } from '../controls/object';
 import { TControlUpdateData } from '../types';
 import { CustomErrorHandler } from '../utils';
@@ -31,7 +31,7 @@ export class FormState<Value extends TControlObjectValue, Context> {
   public rootControl: ControlObject<Value>;
   public validationType: FormValidationType;
 
-  private rootCallbacks!: IImmutableFormControlInternalCallbacks<Value, TControlUpdateData<Value>>;
+  private rootCallbacks!: TControlInternalCallbacks<Value, TControlUpdateData<Value>>;
   private onChange: (updateData: TControlUpdateData<Value>) => void;
   private valueObserver: TValueObserver<Value> | null = null;
 
@@ -118,7 +118,7 @@ export class FormState<Value extends TControlObjectValue, Context> {
       validationType,
       names: { dynamic: '', static: '' },
       onReady: (newCallbacks) => {
-        this.rootCallbacks = newCallbacks as IImmutableFormControlInternalCallbacks<
+        this.rootCallbacks = newCallbacks as TControlInternalCallbacks<
           Value,
           TControlUpdateData<Value>
         >;

@@ -6,7 +6,7 @@ import { FormValidationType } from '../../../validation';
 import { TControlArrayValue } from '../../../values';
 import { TControl } from '../../TControl';
 import { createControl } from '../../createControl';
-import { IImmutableFormControlInternalCallbacks } from '../../types';
+import { TControlInternalCallbacks } from '../../types';
 import { Comparator, ControlChildrenStatesStore } from '../../utils';
 import { TArrayChildrenStoreCallbacks } from '../TArrayChildrenStoreCallbacks';
 import { TArrayExtraUpdateProps } from '../TArrayExtraUpdateProps';
@@ -26,7 +26,7 @@ export type IChildrenMap<Value extends TControlArrayValue> = Record<
   {
     index: number;
     control: TControl<Value[number]>;
-    callbacks: IImmutableFormControlInternalCallbacks<Value[number], TControlUpdateData<Value[number]>>;
+    callbacks: TControlInternalCallbacks<Value[number], TControlUpdateData<Value[number]>>;
   }
 >;
 
@@ -157,7 +157,7 @@ export class ArrayChildrenStore<Value extends TControlArrayValue, DescendantsCon
     const id = this.idCounter.toString(16);
     this.idCounter += 1;
 
-    let callbacks = {} as IImmutableFormControlInternalCallbacks<
+    let callbacks = {} as TControlInternalCallbacks<
       Value[number],
       TControlUpdateData<Value[number]>
     >;

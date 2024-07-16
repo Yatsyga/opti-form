@@ -1,27 +1,27 @@
-# immutable-form
+# opti-form
 
-ImmutableForm is a React library that provides form management solutions, ensuring an immutable data structure for your forms. Designed with performance, strong TypeScript integration, and simplicity in mind, ImmutableForm creates an immutable data tree based on the provided types. Each leaf and branch of the form data includes methods to update its value, generating a new tree structure where only the modified nodes are updated.
+OptiForm is a React library that provides form management solutions, ensuring an immutable data structure for your forms. Designed with performance, strong TypeScript integration, and simplicity in mind, OptiForm creates an immutable data tree based on the provided types. Each leaf and branch of the form data includes methods to update its value, generating a new tree structure where only the modified nodes are updated.
 
 ## Features
 
 - **Strong TypeScript Support**: Enjoy comprehensive type safety throughout your form logic, reducing bugs and improving maintainability.
-- **Optimized Performance**: ImmutableForm minimizes re-renders and improves performance by updating only changed nodes in the form's data structure.
+- **Optimized Performance**: OptiForm minimizes re-renders and improves performance by updating only changed nodes in the form's data structure.
 - **Simplicity and Ease of Use**: Straightforward API that makes complex form handling as simple as possible.
 
-Unfortunately immutable-form is not usable without strict mode.
+Unfortunately opti-form is not usable without strict mode.
 
 ## Installation
 
-To install ImmutableForm, use npm or yarn:
+To install OptiForm, use npm or yarn:
 
 ```bash
-npm install immutable-form
+npm install opti-form
 # or
-yarn add immutable-form
+yarn add opti-form
 ```
 
 ## API
-Main hook provided with immutable-form is useImmutableForm.
+Main hook provided with opti-form is useOptiForm.
 It has two generic arguments, first is value type, second is optional validation context;
 
 ### Input props
@@ -54,9 +54,9 @@ interface IFormValue {
     middleName?: string;
 }
 ```
-To create and use form with that type you would need to call useImmutableForm:
+To create and use form with that type you would need to call useOptiForm:
 ```
-const result = useImmutableForm<IFormValue>({
+const result = useOptiForm<IFormValue>({
     getFieldsData: () => ({
         name: createBasic({ noValueError: { message: 'Value is required' } }),
         surname: createBasic({}),
@@ -85,7 +85,7 @@ export const Input: FC<{ control: TControl<string> }> = ({ control }) => {
     </div>;
 }
 ```
-**useInputValue** is a helper hook that helps to update input value synchronously.
+**useInputValue** is a helper hook that helps to update input value synchronously. It's required only for inputs where user types the value. It's not required for other types of inputs, like checkboxes, selects, radio buttons, date pickers etc.
 To optimize form and minimize rerenders count form is updated asynchronously with minimal delay.
 
 This basic input example will work with any string control. It does not matter what validation is used by control, if any - this all is handled inside form logic.
@@ -103,7 +103,7 @@ And to finally render form:
 ### Example with validation
 For same form value type.
 ```
-const result = useImmutableForm<IFormValue>({
+const result = useOptiForm<IFormValue>({
     getFieldsData: () => ({
         name: createBasic({
             noValueError: { message: 'Value is required' },
@@ -123,7 +123,7 @@ It will also return async error for surname for same value.
 
 ### Example with context
 ```
-const result = useImmutableForm<IFormValue, string>({
+const result = useOptiForm<IFormValue, string>({
     getFieldsData: () => ({
         name: createBasic({
             noValueError: { message: 'Value is required' },
@@ -158,7 +158,7 @@ interface IFormValue {
 
 For these types create the form like this:
 ```
-const result = useImmutableForm<IFormValue>({
+const result = useOptiForm<IFormValue>({
     getFieldsData: () => ({
         groupName: createBasic({ noValueError: { message: 'No value' } }),
         founder: createObject({
@@ -190,7 +190,7 @@ return <PersonRenderer control={result.fields.founder} />;
 ### Example with descendants context
 You can provide callback for object control that will generate new context for it's children props:
 ```
-const result = useImmutableForm<IFormValue>({
+const result = useOptiForm<IFormValue>({
     getFieldsData: () => ({
         groupName: createBasic({ noValueError: { message: 'No value' } }),
         founder: createObject<IPerson, never, string>({
@@ -225,7 +225,7 @@ interface IFormValue {
 ```
 Create form like this:
 ```
-const result = useImmutableForm<IFormValue>({
+const result = useOptiForm<IFormValue>({
     getFieldsData: () => ({
         groupName: createBasic({ noValueError: { message: 'No value' } }),
         employees: createArray({

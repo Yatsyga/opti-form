@@ -9,7 +9,7 @@ import { TControlUpdateData } from '../../../types';
 import { FormValidationType } from '../../../validation';
 import { TControl } from '../../TControl';
 import { createControl } from '../../createControl';
-import { IImmutableFormControlInternalCallbacks } from '../../types';
+import { TControlInternalCallbacks } from '../../types';
 
 export function createTestControl<Value, Context = unknown>(props: {
   data: TControlDataBasic<Value, Context>;
@@ -22,9 +22,9 @@ export function createTestControl<Value, Context = unknown>(props: {
   onChange?: (updateData: TControlUpdateData<Value>) => void;
 }): [
   TControl<Value>,
-  IImmutableFormControlInternalCallbacks<Value, TControlUpdateData<Value>>,
+  TControlInternalCallbacks<Value, TControlUpdateData<Value>>,
 ] {
-  let callbacks = {} as IImmutableFormControlInternalCallbacks<Value, TControlUpdateData<Value>>;
+  let callbacks = {} as TControlInternalCallbacks<Value, TControlUpdateData<Value>>;
 
   const control = createControl<Value, Context>({
     data: props.data as TControlData<Value, unknown>,

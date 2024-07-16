@@ -5,7 +5,7 @@ export * from './control-data/types/TControlDataFields';
 export * from './controls/TControl';
 export * from './TControlExternalErrorFlat';
 export * from './TControlValue';
-export * from './useImmutableForm';
 export * from './useInputValue';
+export * from './useOptiForm';
 export * from './validation';
 

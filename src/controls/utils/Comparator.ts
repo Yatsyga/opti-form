@@ -2,7 +2,7 @@ import { TControlValue } from '../../TControlValue';
 import { TControlNames } from '../../names';
 import { TControlCustomError, TControlUpdateData } from '../../types';
 import { FormValidationType, TControlError } from '../../validation';
-import { TGetImmutableFormControlDescendantsValidationType } from '../types';
+import { TGetControlDescendantsValidationType } from '../types';
 import { Validator } from './Validator';
 
 interface IPropData<T> {
@@ -47,7 +47,7 @@ export class Comparator<Value> {
 
   constructor(
     private readonly props: IProps<Value>,
-    getDescendantsValidationType: TGetImmutableFormControlDescendantsValidationType<Value>
+    getDescendantsValidationType: TGetControlDescendantsValidationType<Value>
   ) {
     this.value = this.createPropData('value');
     this.defaultValue = this.createPropData('defaultValue');
@@ -159,7 +159,7 @@ export class Comparator<Value> {
   }
 
   private createChildValidationTypeData(
-    getDescendantsValidationType: TGetImmutableFormControlDescendantsValidationType<Value>
+    getDescendantsValidationType: TGetControlDescendantsValidationType<Value>
   ): IPropData<FormValidationType> {
     const newValidationType = getDescendantsValidationType(this.validationType.currentValue, this.value.currentValue);
     const oldValue = this.props.oldProps.childValidationType;

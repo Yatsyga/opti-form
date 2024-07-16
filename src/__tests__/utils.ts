@@ -1,12 +1,12 @@
-import { ImmutableForm } from '../ImmutableForm';
+import { OptiForm } from '../OptiForm';
 import { TControlValue } from '../TControlValue';
 import {
-    TControlDataFields,
-    TControlDescendantsPath,
-    TControlDescendantsPathDynamic,
-    createArray,
-    createBasic,
-    createObject,
+  TControlDataFields,
+  TControlDescendantsPath,
+  TControlDescendantsPathDynamic,
+  createArray,
+  createBasic,
+  createObject,
 } from '../control-data';
 import { ControlArray, ControlObject, TControl } from '../controls';
 import { FormValidationType, TControlError } from '../validation';
@@ -51,7 +51,7 @@ export interface ITestControlData {
   isDirty: boolean;
 }
 
-export type IImmutableFormTestState = Partial<
+export type TFormTestState = Partial<
   Record<
     TControlDescendantsPathDynamic<ITestFormValue> | TControlDescendantsPath<ITestFormValue>,
     ITestControlData
@@ -85,14 +85,14 @@ export const testForbiddenSurname: TControlError = {
 };
 
 export class TestForm {
-  public form: ImmutableForm<ITestFormValue, Set<string>>;
+  public form: OptiForm<ITestFormValue, Set<string>>;
   public updatesCount: number = 0;
 
   private promiseUpdate?: Promise<void>;
   private onUpdate: () => void = () => {};
 
   constructor(props: IProps) {
-    this.form = ImmutableForm.create<ITestFormValue, Set<string>>({
+    this.form = OptiForm.create<ITestFormValue, Set<string>>({
       fieldsData: this.createFieldsData(props),
       value: props.value,
       defaultValue: props.defaultValue,
@@ -109,11 +109,11 @@ export class TestForm {
     });
   }
 
-  public getState(expectedState: IImmutableFormTestState): IImmutableFormTestState {
+  public getState(expectedState: TFormTestState): TFormTestState {
     const requiredFields = new Set(
       Object.keys(expectedState) as TControlDescendantsPathDynamic<ITestFormValue>[]
     );
-    const result: IImmutableFormTestState = {};
+    const result: TFormTestState = {};
 
     for (const key in this.form.fields) {
       this.fillState(
@@ -137,7 +137,7 @@ export class TestForm {
   }
 
   private fillState(
-    state: IImmutableFormTestState,
+    state: TFormTestState,
     control: TControl<any>,
     requiredFields: Set<TControlDescendantsPathDynamic<ITestFormValue>>
   ): void {
@@ -255,9 +255,9 @@ type IExtraProps = Partial<
   >
 >;
 
-export class TestImmutableFormStateCollector {
-  public readonly expectedState: IImmutableFormTestState;
-  public readonly actualState: IImmutableFormTestState;
+export class TestFormStateCollector {
+  public readonly expectedState: TFormTestState;
+  public readonly actualState: TFormTestState;
 
   private readonly flattenedValue: Record<string, any>;
   private readonly flattenedDefaultValue: Record<string, any>;

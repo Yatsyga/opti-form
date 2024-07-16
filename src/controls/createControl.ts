@@ -1,9 +1,9 @@
 import { ControlType } from '../ControlType';
 import { TControlValue } from '../TControlValue';
 import {
-  TControlData,
-  TControlDataArray,
-  TControlDataObject,
+    TControlData,
+    TControlDataArray,
+    TControlDataObject,
 } from '../control-data';
 import { TControlNames, createObjectChildNames } from '../names';
 import { TControlUpdateData } from '../types';
@@ -13,7 +13,7 @@ import { TControl } from './TControl';
 import { ControlArray } from './array';
 import { ControlBasic } from './basic';
 import { ControlObject } from './object';
-import { TOnImmutableFormControlReady } from './types';
+import { TOnControlReady } from './types';
 
 interface IProps<Value, Context = unknown> {
   data: TControlData<Value, unknown>;
@@ -23,7 +23,7 @@ interface IProps<Value, Context = unknown> {
   validationType: FormValidationType;
   isTouched: boolean;
   names: TControlNames;
-  onReady: TOnImmutableFormControlReady<Value>;
+  onReady: TOnControlReady<Value>;
   onChange: (updateData: TControlUpdateData<Value>) => void;
 }
 
@@ -60,7 +60,7 @@ export function createControl<Value, Context = unknown>({
         context,
         validationType,
         names,
-        onReady: onReady as TOnImmutableFormControlReady<TControlObjectValue>,
+        onReady: onReady as TOnControlReady<TControlObjectValue>,
         onChange: onChange as (updateData: TControlUpdateData<TControlObjectValue>) => void,
         createChildNames: (names, key) => createObjectChildNames(names, key),
       }) as unknown as TControl<Value>;
@@ -73,7 +73,7 @@ export function createControl<Value, Context = unknown>({
         context,
         validationType,
         names,
-        onReady: onReady as unknown as TOnImmutableFormControlReady<TControlArrayValue>,
+        onReady: onReady as unknown as TOnControlReady<TControlArrayValue>,
         onChange: onChange as (updateData: TControlUpdateData<TControlArrayValue>) => void,
       }) as unknown as TControl<Value>;
     default:

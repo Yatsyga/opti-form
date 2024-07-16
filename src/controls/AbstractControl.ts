@@ -6,9 +6,9 @@ import { iterateObjectKeys } from '../utils';
 import { FormValidationType, TControlError } from '../validation';
 import { TControl } from './TControl';
 import {
-  IImmutableFormControlSetValueExtraProps,
-  TGetImmutableFormControlDescendantsValidationType,
-  TOnImmutableFormControlReady,
+  TControlSetValueExtraProps,
+  TGetControlDescendantsValidationType,
+  TOnControlReady,
 } from './types';
 import { Comparator, Validator } from './utils';
 
@@ -21,7 +21,7 @@ interface IProps<Value, UpdateData extends TControlUpdateData<Value>> {
   needContextForDescendantsContext: boolean;
   validationType: FormValidationType;
   names: TControlNames;
-  onReady: TOnImmutableFormControlReady<Value>;
+  onReady: TOnControlReady<Value>;
   onChange: (updateData: UpdateData) => void;
 }
 
@@ -44,7 +44,7 @@ export abstract class AbstractControl<Value, UpdateData extends TControlUpdateDa
   protected readonly needContextForDescendantsContext: boolean;
   protected readonly names: TControlNames;
 
-  protected onReady: TOnImmutableFormControlReady<Value>;
+  protected onReady: TOnControlReady<Value>;
   protected onChange: (updateData: UpdateData) => void;
   protected validationType: FormValidationType;
   protected childValidationType: FormValidationType;
@@ -102,7 +102,7 @@ export abstract class AbstractControl<Value, UpdateData extends TControlUpdateDa
 
   protected abstract setValue(
     newValue: TControlValue<Value>,
-    extraProps?: IImmutableFormControlSetValueExtraProps
+    extraProps?: TControlSetValueExtraProps
   ): void;
 
   protected abstract applyUpdate(
@@ -113,8 +113,8 @@ export abstract class AbstractControl<Value, UpdateData extends TControlUpdateDa
   protected abstract destroyState(): void;
 
   protected getRequiredSetValueExtraProps(
-    props: IImmutableFormControlSetValueExtraProps | undefined
-  ): Required<IImmutableFormControlSetValueExtraProps> {
+    props: TControlSetValueExtraProps | undefined
+  ): Required<TControlSetValueExtraProps> {
     return {
       noTouch: props?.noTouch ?? false,
     };
@@ -145,7 +145,7 @@ export abstract class AbstractControl<Value, UpdateData extends TControlUpdateDa
     this.destroyState();
   }
 
-  protected readonly getChildValidationType: TGetImmutableFormControlDescendantsValidationType<Value> = (type) => type;
+  protected readonly getChildValidationType: TGetControlDescendantsValidationType<Value> = (type) => type;
 
   private createComparator(updateData: TControlUpdateData<Value>): Comparator<Value> {
     const result = new Comparator<Value>(

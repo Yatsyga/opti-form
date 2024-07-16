@@ -15,7 +15,7 @@ import {
 } from '../../../validation';
 import { TControl } from '../../TControl';
 import { createControl } from '../../createControl';
-import { IImmutableFormControlInternalCallbacks } from '../../types';
+import { TControlInternalCallbacks } from '../../types';
 
 export interface ITestObject {
   id: number | undefined;
@@ -68,9 +68,9 @@ export function createTestControl<Context = unknown, DescendantsContext = Contex
   isRequired,
 }: IProps<Context, DescendantsContext>): [
   TControl<ITestObject>,
-  IImmutableFormControlInternalCallbacks<ITestObject, TControlUpdateData<ITestObject>>,
+  TControlInternalCallbacks<ITestObject, TControlUpdateData<ITestObject>>,
 ] {
-  let callbacks = {} as IImmutableFormControlInternalCallbacks<
+  let callbacks = {} as TControlInternalCallbacks<
     ITestObject,
     TControlUpdateData<ITestObject>
   >;
