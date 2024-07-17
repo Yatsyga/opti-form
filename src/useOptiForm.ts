@@ -8,10 +8,29 @@ import { FormValidationType } from './validation';
 import { TControlObjectValue } from './values';
 
 interface IProps<Value extends TControlObjectValue, Context = never> {
+  /**
+   * A callback that must return form tree structure info.
+   * Each node is created by methods createBasic, createObject and createArray depending on control type.
+   * It is called only once on mount
+   */
   getFieldsData: () => TControlDataFields<Value, Context>;
+  /**
+   * Validation context. Required if Context generic param is provided.
+   */
   context: Context;
+  /**
+   * Validation type that will be used across the whole form
+   */
   validationType?: FormValidationType;
+  /**
+   * Default value for form. It's value matters only on mount, subsequent changes to this prop will be ignored.
+   * If you need to change defaultValue later, use reset() method.
+   */
   defaultValue?: TControlValue<Value>;
+  /**
+   * Value for form. It's value matters only on mount, subsequent changes to this prop will be ignored.
+   * If you need to change value later, use reset() method.
+   */
   value?: TControlValue<Value>;
 }
 

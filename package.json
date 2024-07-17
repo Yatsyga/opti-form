@@ -1,6 +1,6 @@
 {
   "name": "opti-form",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Form logic for React with immutable controls and value",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,7 +18,7 @@
     "Form"
   ],
   "author": "Yarilko",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/Yatsyga/opti-form/issues"
   },

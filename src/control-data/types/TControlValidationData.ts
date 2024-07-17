@@ -17,7 +17,7 @@ export type TControlValidationData<Value, Context> = TNullToOptionalUndefined<{
          */
         usesContext: true;
         /**
-         * Validation callback for control. If new noValue error is provided, this callback will be called only if value is defined.
+         * Validation callback for control. If noValue error is provided, this callback will be called only if value is defined.
          * @param value control value
          * @param context since usesContext === true, this callback will receive validation context as second argument.
          */
@@ -33,7 +33,7 @@ export type TControlValidationData<Value, Context> = TNullToOptionalUndefined<{
          */
         usesContext?: false;
         /**
-         * Validation callback for control. If new noValue error is provided, this callback will be called only if value is defined.
+         * Validation callback for control. If noValue error is provided, this callback will be called only if value is defined.
          * @param value control value
          * Since usesContext === false | undefined, this callback will not receive validation context as second argument.
          */
