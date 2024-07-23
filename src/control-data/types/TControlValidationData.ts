@@ -41,6 +41,13 @@ export type TControlValidationData<Value, Context> = TNullToOptionalUndefined<{
       }
   );
 
+/**
+ * @deprecated just a crutch to make everything work in not strict mode
+ */
+export type TControlValidationDataLoose<Value, Context> = Omit<TControlValidationData<Value, Context>, 'noValueError'> & {
+  noValueError?: TControlError;
+};
+
 type TNullKeys<T extends { [key: string]: any }> = {
   [Key in keyof T]: T[Key] extends null ? Key : never;
 }[keyof T];

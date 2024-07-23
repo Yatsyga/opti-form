@@ -6,6 +6,7 @@ import {
   TControlDataArray,
   TControlDescendantsContextProps,
   TControlValidationData,
+  TControlValidationDataLoose,
   TCreateDescendantsContext,
 } from './types';
 
@@ -32,7 +33,7 @@ export function createArray<
   props: IBaseCreationProps<Value, Context, DescendantsContext>,
   descendantsData?: TControlDescendantsContextProps<Value, Context, DescendantsContext>
 ): TControlDataArray<Value, Context> {
-  const descendantsUsePassedContext = getDescendantsUsePassedContext(props.childData, descendantsData);
+  const descendantsUsePassedContext = getDescendantsUsePassedContext(props.childData);
   const { createDescendantsContext, needContextForDescendantsContext } = createDescendantsContextProps(
     descendantsData,
     descendantsUsePassedContext
@@ -53,9 +54,44 @@ export function createArray<
   };
 }
 
+type IBaseCreationPropsLoose<Value extends TControlArrayValue, Context, DescendantsContext> = {
+  childData: TControlData<Value[number], DescendantsContext>;
+} & TControlValidationDataLoose<Value, Context>;
+
+/**
+ * @deprecated A wrapper of actual createArray to make it work with non strict mode. Do not use it in strict mode
+ */
+export function createArrayLoose<
+  Value extends TControlArrayValue,
+  Context,
+  DescendantsContext,
+>(
+  props: IBaseCreationPropsLoose<Value, Context, DescendantsContext>,
+  descendantsData: TControlDescendantsContextProps<Value, Context, DescendantsContext>
+): TControlDataArray<Value, Context>;
+/**
+ * @deprecated A wrapper of actual createArray to make it work with non strict mode. Do not use it in strict mode
+ */
+export function createArrayLoose<Value extends TControlArrayValue, Context>(
+  props: IBaseCreationPropsLoose<Value, Context, Context>
+): TControlDataArray<Value, Context>;
+/**
+ * @deprecated A wrapper of actual createArray to make it work with non strict mode. Do not use it in strict mode
+ */
+export function createArrayLoose<
+  Value extends TControlArrayValue,
+  Context,
+  DescendantsContext,
+>(
+  props: IBaseCreationPropsLoose<Value, Context, DescendantsContext>,
+  descendantsData?: TControlDescendantsContextProps<Value, Context, DescendantsContext>
+): TControlDataArray<Value, Context> {
+  // @ts-expect-error: because of overloads mumbo-jumbo descendants data breaks here
+  return createArray(props, descendantsData);
+}
+
 function getDescendantsUsePassedContext<Value extends TControlArrayValue, Context, DescendantsContext>(
   childData: TControlData<Value[number], DescendantsContext>,
-  descendantsData?: TControlDescendantsContextProps<Value, Context, DescendantsContext>
 ): boolean {
   return childData.usesContext || childData.descendantsUsePassedContext;
 }

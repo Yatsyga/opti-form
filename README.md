@@ -1,15 +1,16 @@
-# opti-form
+Welcome to OptiForm, a React library designed to simplify form management with a focus on robustness and efficiency. At its core, OptiForm leverages immutable data structures to ensure a consistent and predictable form state, empowering developers to build reliable and scalable form-based applications.
 
-OptiForm is a React library that provides form management solutions, ensuring an immutable data structure for your forms. Designed with performance, strong TypeScript integration, and simplicity in mind, OptiForm creates an immutable data tree based on the provided types. Each leaf and branch of the form data includes methods to update its value, generating a new tree structure where only the modified nodes are updated.
+### Key Features:
+- **Type Safety:** OptiForm enhances form reliability through type safety, minimizing the risk of common coding errors and ensuring your forms behave as expected.
+- **Simplified Input Renderers:** Building input components is more straightforward with OptiForm. Input renderers focus solely on displaying the UI, as all validation logic and state management are handled internally. This means each control component receives all necessary data such as value, default value, validation errors, and status flags like `isTouched`, `isDirty` and `isValidating`. Controls are also designed to handle complex data structures, including nested objects and arrays.
+- **Effortless Reusability:** With OptiForm, input components are designed for reusability. They are agnostic of the form's structure and focus only on handling the type of control they receive, making them easily portable across different parts of your application.
+- **Optimized Performance:** OptiForm optimizes form interactions by updating only the components that have changed. This selective re-rendering approach ensures high performance, especially in forms with a large number of inputs.
 
-## Features
+### Developer Note:
+While OptiForm does not ship with built-in input components, it empowers developers by simplifying the creation of custom input renderers. With OptiForm’s structured data management, creating an input component becomes an intuitive process. Each input renderer has access to all the necessary state information it needs—such as values, defaults, and validation states—streamlined into a single control object. This design not only makes your code cleaner and more maintainable but also enhances development speed by reducing the complexity typically associated with form implementations.
 
-- **Strong TypeScript Support**: Enjoy comprehensive type safety throughout your form logic, reducing bugs and improving maintainability.
-- **Optimized Performance**: OptiForm minimizes re-renders and improves performance by updating only changed nodes in the form's data structure.
-- **Simplicity and Ease of Use**: Straightforward API that makes complex form handling as simple as possible.
-- **Logic does not depend on render**: You can render any control however you like or not render them at all, it will not affect validation or any other form logic at all.
-
-Unfortunately as of now opti-form is not usable without strict mode.
+### Strict and non strict modes
+OptiForm is meticulously designed to leverage the full capabilities of TypeScript's strict mode, ensuring robust type safety and reducing the likelihood of runtime errors. For projects that utilize strict mode, OptiForm's standard node creation methods (createBasic, createObject, createArray) offer a high level of reliability and type checking. However, if you need to use OptiForm in environments without strict mode enabled, alternative methods (createBasicLoose, createObjectLoose, createArrayLoose) are available. These methods provide similar functionalities but with a more lenient type checking process to accommodate the non-strict mode settings. While these alternatives are not as foolproof as their strict counterparts, they offer a viable solution when strict mode cannot be enabled.
 
 ## Installation
 
@@ -20,6 +21,8 @@ npm install opti-form
 # or
 yarn add opti-form
 ```
+
+For more information, check out the [detailed guide](https://github.com/exampleuser/example-repo/wiki/Getting-Started) page in our wiki.
 
 ## API
 Main hook provided with opti-form is useOptiForm.
@@ -125,7 +128,8 @@ const result = useOptiForm<IFormValue>({
         surname: createBasic({
             validate: (value) => Promise.resolve(
                 value === 'forbidden' ? { message: 'Value is forbidden' } : null
-            )
+            ),
+            validationDebounceMs: 500
         }),
         middleName: createBasic({})
     })
@@ -133,6 +137,7 @@ const result = useOptiForm<IFormValue>({
 ```
 In this example form will also show error for name if it equals 'forbidden';
 It will also return async error for surname for same value.
+Note that in this example async validation start is debounced by 500ms. You can put validation debounce for any validation, not just async ones.
 
 ### Example with context
 ```tsx

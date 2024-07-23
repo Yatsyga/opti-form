@@ -6,12 +6,17 @@ import {
   TControlDataObject,
   TControlDescendantsContextProps,
   TControlValidationData,
+  TControlValidationDataLoose,
   TCreateDescendantsContext,
 } from './types';
 
 type IBaseCreationProps<Value extends TControlObjectValue, Context, DescendantsContext> = {
   fieldsData: TControlDataFields<Value, DescendantsContext>;
 } & TControlValidationData<Value, Context>;
+
+type IBaseCreationPropsLoose<Value extends TControlObjectValue, Context, DescendantsContext> = {
+  fieldsData: TControlDataFields<Value, DescendantsContext>;
+} & TControlValidationDataLoose<Value, Context>;
 
 export function createObject<
   Value extends TControlObjectValue,
@@ -51,6 +56,38 @@ export function createObject<
     createDescendantsContext,
     needContextForDescendantsContext,
   };
+}
+
+/**
+ * @deprecated A wrapper of actual createObject to make it work with non strict mode. Do not use it in strict mode
+ */
+export function createObjectLoose<
+  Value extends TControlObjectValue,
+  Context,
+  DescendantsContext,
+>(
+  props: IBaseCreationPropsLoose<Value, Context, DescendantsContext>,
+  descendantsData: TControlDescendantsContextProps<Value, Context, DescendantsContext>
+): TControlDataObject<Value, Context>;
+/**
+ * @deprecated A wrapper of actual createObject to make it work with non strict mode. Do not use it in strict mode
+ */
+export function createObjectLoose<Value extends TControlObjectValue, Context>(
+  props: IBaseCreationPropsLoose<Value, Context, Context>
+): TControlDataObject<Value, Context>;
+/**
+ * @deprecated A wrapper of actual createObject to make it work with non strict mode. Do not use it in strict mode
+ */
+export function createObjectLoose<
+  Value extends TControlObjectValue,
+  Context,
+  DescendantsContext,
+>(
+  props: IBaseCreationPropsLoose<Value, Context, DescendantsContext>,
+  descendantsData?: TControlDescendantsContextProps<Value, Context, DescendantsContext>
+): TControlDataObject<Value, Context> {
+  // @ts-expect-error: because of overloads mumbo-jumbo descendants data breaks here
+  return createObject(props, descendantsData);
 }
 
 function getDescendantsUsePassedContext<Value extends TControlObjectValue, DescendantsContext>(
