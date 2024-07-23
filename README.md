@@ -22,7 +22,7 @@ npm install opti-form
 yarn add opti-form
 ```
 
-For more information, check out the [detailed guide](https://github.com/exampleuser/example-repo/wiki/Getting-Started) page in our wiki.
+For more information, check out the [detailed guide](https://github.com/Yatsyga/opti-form/wiki) page in our wiki.
 
 ## API
 Main hook provided with opti-form is useOptiForm.
