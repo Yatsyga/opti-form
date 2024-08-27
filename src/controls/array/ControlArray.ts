@@ -38,16 +38,20 @@ export class ControlArray<
   Value extends TControlArrayValue,
 > extends AbstractControl<Value, IChanges<Value>> {
   public static create<Value extends TControlArrayValue>(
-    props: IProps<Value>
+    props: IProps<Value>,
   ): TControl<Value> {
     return new ControlArray(props) as TControl<Value>;
   }
 
   private static modify<Value extends TControlArrayValue>(
     props: IProps<Value>,
-    state: IState<Value>
+    state: IState<Value>,
   ): TControl<Value> {
     return new ControlArray<Value>(props, state) as TControl<Value>;
+  }
+
+  public get required(): boolean {
+    return this.data.noValueError !== null;
   }
 
   /**
@@ -66,15 +70,27 @@ export class ControlArray<
   private readonly data: TControlDataArray<Value, unknown>;
 
   constructor(
-    { data, value, defaultValue, isTouched, context, validationType, names, onReady, onChange }: IProps<Value>,
-    state?: IState<Value>
+    {
+      data,
+      value,
+      defaultValue,
+      isTouched,
+      context,
+      validationType,
+      names,
+      onReady,
+      onChange,
+    }: IProps<Value>,
+    state?: IState<Value>,
   ) {
     super({
       value,
       defaultValue,
       context,
       createDescendantsContext: data.createDescendantsContext,
-      descendantsContext: state ? state.descendantsContext : data.createDescendantsContext(value, context),
+      descendantsContext: state
+        ? state.descendantsContext
+        : data.createDescendantsContext(value, context),
       names,
       validationType,
       needContextForDescendantsContext: data.needContextForDescendantsContext,
@@ -89,38 +105,55 @@ export class ControlArray<
     this.list = this.state.childrenStore.list;
     this.isDirty =
       this.state.childrenStore.isDirty ||
-      (this.defaultValue ? this.defaultValue.length !== this.list.length : this.list.length > 0);
+      (this.defaultValue
+        ? this.defaultValue.length !== this.list.length
+        : this.list.length > 0);
     this.error = this.state.validator.error;
     this.isValid = this.error === null && this.state.childrenStore.isValid;
-    this.isValidating = this.state.validator.isValidating || this.state.childrenStore.isValidating;
+    this.isValidating =
+      this.state.validator.isValidating ||
+      this.state.childrenStore.isValidating;
     this.isTouched = isTouched || this.state.childrenStore.isTouched;
   }
 
   public setValue(
     newValue: TControlValue<Value>,
-    extraProps?: TControlSetValueExtraProps
+    extraProps?: TControlSetValueExtraProps,
   ): void {
     const reqExtraProps = this.getRequiredSetValueExtraProps(extraProps);
-    const newValueArr = newValue ?? ([] as unknown as NonNullable<TControlValue<Value>>);
+    const newValueArr =
+      newValue ?? ([] as unknown as NonNullable<TControlValue<Value>>);
 
-    for (let index = 0, length = Math.min(this.list.length, newValueArr.length); index < length; index++) {
+    for (
+      let index = 0, length = Math.min(this.list.length, newValueArr.length);
+      index < length;
+      index++
+    ) {
       this.list[index].control.setValue(newValueArr[index], reqExtraProps);
     }
     const added = newValueArr.slice(this.list.length);
     const deleted = new Set(
       Array(Math.max(this.list.length - newValueArr.length, 0))
         .fill(null)
-        .map((_val, index) => newValueArr.length + index)
+        .map((_val, index) => newValueArr.length + index),
     );
 
     const changes: IChanges<Value> = {};
-    const childrenUpdates: TArrayExtraUpdateProps<Value>['childrenUpdates'] = Object.assign(
-      this.currentUpdatesData?.childrenUpdates ?? {},
-      added.length > 0
-        ? { added: new Map([[Math.max(this.list.length - 1, 0), { before: [], after: added }]]) }
-        : undefined,
-      deleted.size > 0 ? { deleted } : undefined
-    );
+    const childrenUpdates: TArrayExtraUpdateProps<Value>['childrenUpdates'] =
+      Object.assign(
+        this.currentUpdatesData?.childrenUpdates ?? {},
+        added.length > 0
+          ? {
+              added: new Map([
+                [
+                  Math.max(this.list.length - 1, 0),
+                  { before: [], after: added },
+                ],
+              ]),
+            }
+          : undefined,
+        deleted.size > 0 ? { deleted } : undefined,
+      );
 
     if (Object.keys(childrenUpdates!).length > 0) {
       changes.childrenUpdates = childrenUpdates;
@@ -156,7 +189,10 @@ export class ControlArray<
       }
       const lastIndex = Math.max(this.list.length - 1, 0);
       if (!changes.childrenUpdates!.added.has(lastIndex)) {
-        changes.childrenUpdates!.added.set(lastIndex, { before: [], after: [] });
+        changes.childrenUpdates!.added.set(lastIndex, {
+          before: [],
+          after: [],
+        });
       }
       changes.childrenUpdates!.added.get(lastIndex)!.after.push(...values);
     }
@@ -178,9 +214,12 @@ export class ControlArray<
 
   protected applyUpdate(
     comparator: Comparator<Value>,
-    updateData: IChanges<Value>
+    updateData: IChanges<Value>,
   ): TControl<Value> | null {
-    const isChildrenChanged = this.state.childrenStore.applyChildrenChanges(updateData.childrenUpdates, comparator);
+    const isChildrenChanged = this.state.childrenStore.applyChildrenChanges(
+      updateData.childrenUpdates,
+      comparator,
+    );
 
     if (comparator.shouldRecreate || isChildrenChanged) {
       return this.cloneWithChanges(comparator);
@@ -208,14 +247,14 @@ export class ControlArray<
         onReady: this.onReady,
         onChange: this.onChange,
       },
-      this.state
+      this.state,
     );
   }
 
   private getState(
     state: IState<Value> | undefined,
     data: TControlDataArray<Value, unknown>,
-    isTouched: boolean
+    isTouched: boolean,
   ): IState<Value> {
     const callbacks: TArrayChildrenStoreCallbacks<Value> = {
       onChildChange: (key, changes) => this.onChildChange(key, changes),
@@ -228,7 +267,10 @@ export class ControlArray<
       return state;
     }
 
-    const descendantsContext = this.data.createDescendantsContext(this.value, this.context);
+    const descendantsContext = this.data.createDescendantsContext(
+      this.value,
+      this.context,
+    );
 
     return {
       validator: new Validator<Value>({
@@ -244,19 +286,26 @@ export class ControlArray<
         usesContext: this.data.usesContext,
         noValueError: this.data.noValueError,
       }),
-      childrenStore: new ArrayChildrenStore<Value, unknown>(this.data.childData, callbacks, {
-        names: this.names,
-        descendantsContext,
-        value: this.value,
-        defaultValue: this.defaultValue,
-        isTouched: isTouched,
-        validationType: this.validationType,
-      }),
+      childrenStore: new ArrayChildrenStore<Value, unknown>(
+        this.data.childData,
+        callbacks,
+        {
+          names: this.names,
+          descendantsContext,
+          value: this.value,
+          defaultValue: this.defaultValue,
+          isTouched: isTouched,
+          validationType: this.validationType,
+        },
+      ),
       descendantsContext,
     };
   }
 
-  private onChildChange(index: number, changes: TControlUpdateData<Value[number]>): void {
+  private onChildChange(
+    index: number,
+    changes: TControlUpdateData<Value[number]>,
+  ): void {
     const finalChanges: IChanges<Value> = {
       childrenUpdates: this.currentUpdatesData?.childrenUpdates ?? {},
     };
@@ -285,7 +334,8 @@ export class ControlArray<
     const finalChanges: IChanges<Value> = {
       childrenUpdates: this.currentUpdatesData?.childrenUpdates ?? {},
       value:
-        this.currentUpdatesData && Object.hasOwn(this.currentUpdatesData, 'value')
+        this.currentUpdatesData &&
+        Object.hasOwn(this.currentUpdatesData, 'value')
           ? this.currentUpdatesData.value
           : (this.value?.slice() as TControlValue<Value>),
     };
@@ -319,10 +369,11 @@ export class ControlArray<
 
   private getNewValue(
     index: number,
-    value: TControlValue<Value[number]>
+    value: TControlValue<Value[number]>,
   ): TControlValue<Value> {
     const result: TControlValue<Value> =
-      (this.currentUpdatesData && Object.hasOwn(this.currentUpdatesData, 'value')
+      (this.currentUpdatesData &&
+      Object.hasOwn(this.currentUpdatesData, 'value')
         ? this.currentUpdatesData.value
         : ((this.value?.slice() ?? []) as unknown as TControlValue<Value>)) ??
       ([] as unknown as NonNullable<TControlValue<Value>>);

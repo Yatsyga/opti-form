@@ -53,6 +53,7 @@ export abstract class AbstractControl<
    */
   public abstract readonly error: TControlError | null;
   public abstract readonly isTouched: boolean;
+  public abstract readonly required: boolean;
 
   public readonly value: TControlValue<Value>;
   public readonly defaultValue: TControlValue<Value>;

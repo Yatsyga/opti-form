@@ -26,7 +26,10 @@ interface IProps<Value extends TControlObjectValue> {
   names: TControlNames;
   onReady: TOnControlReady<Value>;
   onChange: (updateData: TControlUpdateData<Value>) => void;
-  createChildNames: (names: TControlNames, key: keyof Value & string) => TControlNames;
+  createChildNames: (
+    names: TControlNames,
+    key: keyof Value & string,
+  ) => TControlNames;
 }
 
 interface IState<Value extends TControlObjectValue> {
@@ -42,16 +45,20 @@ export class ControlObject<
   Value extends TControlObjectValue,
 > extends AbstractControl<Value, IChanges<Value>> {
   public static create<Value extends TControlObjectValue>(
-    props: IProps<Value>
+    props: IProps<Value>,
   ): TControl<Value> {
     return new ControlObject<Value>(props) as TControl<Value>;
   }
 
   private static modify<Value extends TControlObjectValue>(
     props: IProps<Value>,
-    state: IState<Value>
+    state: IState<Value>,
   ): TControl<Value> {
     return new ControlObject<Value>(props, state) as TControl<Value>;
+  }
+
+  public get required(): boolean {
+    return this.data.noValueError !== null;
   }
 
   /**
@@ -70,7 +77,7 @@ export class ControlObject<
   private readonly data: TControlDataObject<Value, unknown>;
   private readonly createChildNames: (
     names: TControlNames,
-    key: keyof Value & string
+    key: keyof Value & string,
   ) => TControlNames;
 
   constructor(
@@ -86,14 +93,16 @@ export class ControlObject<
       onChange,
       createChildNames,
     }: IProps<Value>,
-    state?: IState<Value>
+    state?: IState<Value>,
   ) {
     super({
       value,
       defaultValue,
       context,
       createDescendantsContext: data.createDescendantsContext,
-      descendantsContext: state ? state.descendantsContext : data.createDescendantsContext(value, context),
+      descendantsContext: state
+        ? state.descendantsContext
+        : data.createDescendantsContext(value, context),
       needContextForDescendantsContext: data.needContextForDescendantsContext,
       names,
       validationType,
@@ -109,19 +118,27 @@ export class ControlObject<
     this.isDirty = this.state.childrenStore.isDirty;
     this.error = this.state.validator.error;
     this.isValid = this.error === null && this.state.childrenStore.isValid;
-    this.isValidating = this.state.validator.isValidating || this.state.childrenStore.isValidating;
+    this.isValidating =
+      this.state.validator.isValidating ||
+      this.state.childrenStore.isValidating;
     this.isTouched = this.state.childrenStore.isTouched;
     this.fields = this.state.childrenStore.fields;
-    this.childValidationType = this.getChildValidationType(this.validationType, this.value);
+    this.childValidationType = this.getChildValidationType(
+      this.validationType,
+      this.value,
+    );
   }
 
   public setValue(
     newValue: TControlValue<Value>,
-    extraProps?: TControlSetValueExtraProps
+    extraProps?: TControlSetValueExtraProps,
   ): void {
     const reqExtraProps = this.getRequiredSetValueExtraProps(extraProps);
     for (const key in this.fields) {
-      this.fields[key].setValue(newValue ? newValue[key] : undefined, reqExtraProps);
+      this.fields[key].setValue(
+        newValue ? newValue[key] : undefined,
+        reqExtraProps,
+      );
     }
   }
 
@@ -136,9 +153,12 @@ export class ControlObject<
 
   protected applyUpdate(
     comparator: Comparator<Value>,
-    updateData: IChanges<Value>
+    updateData: IChanges<Value>,
   ): TControl<Value> | null {
-    const isChildrenChanged = this.state.childrenStore.applyChildrenChanges(updateData.childrenUpdates, comparator);
+    const isChildrenChanged = this.state.childrenStore.applyChildrenChanges(
+      updateData.childrenUpdates,
+      comparator,
+    );
 
     if (comparator.shouldRecreate || isChildrenChanged) {
       return this.cloneWithChanges(comparator);
@@ -152,16 +172,14 @@ export class ControlObject<
     this.state.childrenStore.destroy();
   }
 
-  protected readonly getChildValidationType: TGetControlDescendantsValidationType<Value> = (
-    currentType,
-    value
-  ) => {
-    if (value === undefined && !this.data.noValueError) {
-      return FormValidationType.never;
-    }
+  protected readonly getChildValidationType: TGetControlDescendantsValidationType<Value> =
+    (currentType, value) => {
+      if (value === undefined && !this.data.noValueError) {
+        return FormValidationType.never;
+      }
 
-    return currentType;
-  };
+      return currentType;
+    };
 
   private cloneWithChanges(comparator: Comparator<Value>): TControl<Value> {
     this.state.descendantsContext = comparator.descendantsContext.currentValue;
@@ -178,7 +196,7 @@ export class ControlObject<
         onChange: this.onChange,
         createChildNames: this.createChildNames,
       },
-      this.state
+      this.state,
     );
   }
 
@@ -186,7 +204,7 @@ export class ControlObject<
     state: IState<Value> | undefined,
     value: TControlValue<Value>,
     data: TControlDataObject<Value, unknown>,
-    isTouched: boolean
+    isTouched: boolean,
   ): IState<Value> {
     const callbacks: TObjectChildrenStoreCallbacks<Value> = {
       onChildChange: (key, changes) => this.onChildChange(key, changes),
@@ -213,19 +231,26 @@ export class ControlObject<
         usesContext: this.data.usesContext,
         noValueError: this.data.noValueError,
       }),
-      childrenStore: new ObjectChildrenStore<Value, unknown>(this.data.fieldsData, callbacks, {
-        names: this.names,
-        descendantsContext: this.descendantsContext,
-        value,
-        defaultValue: this.defaultValue,
-        initialIsTouched: isTouched,
-        validationType: this.validationType,
-      }),
+      childrenStore: new ObjectChildrenStore<Value, unknown>(
+        this.data.fieldsData,
+        callbacks,
+        {
+          names: this.names,
+          descendantsContext: this.descendantsContext,
+          value,
+          defaultValue: this.defaultValue,
+          initialIsTouched: isTouched,
+          validationType: this.validationType,
+        },
+      ),
       descendantsContext: this.descendantsContext,
     };
   }
 
-  private onChildChange<Key extends keyof Value>(key: Key, changes: TControlUpdateData<Value[Key]>): void {
+  private onChildChange<Key extends keyof Value>(
+    key: Key,
+    changes: TControlUpdateData<Value[Key]>,
+  ): void {
     const finalChanges: IChanges<Value> = {
       childrenUpdates: this.currentUpdatesData?.childrenUpdates ?? {},
     };
@@ -241,12 +266,14 @@ export class ControlObject<
 
   private getNewValue<Key extends keyof Value>(
     key: Key,
-    value: TControlValue<Value[Key]>
+    value: TControlValue<Value[Key]>,
   ): TControlValue<Value> {
     const result =
-      (this.currentUpdatesData && Object.hasOwn(this.currentUpdatesData, 'value')
+      (this.currentUpdatesData &&
+      Object.hasOwn(this.currentUpdatesData, 'value')
         ? this.currentUpdatesData.value
-        : Object.assign({}, this.value)) ?? ({} as NonNullable<TControlValue<Value>>);
+        : Object.assign({}, this.value)) ??
+      ({} as NonNullable<TControlValue<Value>>);
 
     if (value === undefined) {
       delete result[key as keyof Value & string];

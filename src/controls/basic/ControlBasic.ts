@@ -32,8 +32,15 @@ export class ControlBasic<Value> extends AbstractControl<
     return new ControlBasic<Value>(props) as TControl<Value>;
   }
 
-  private static modify<Value>(props: IProps<Value>, state: IState<Value>): TControl<Value> {
+  private static modify<Value>(
+    props: IProps<Value>,
+    state: IState<Value>,
+  ): TControl<Value> {
     return new ControlBasic<Value>(props, state) as TControl<Value>;
+  }
+
+  public get required(): boolean {
+    return this.data.noValueError !== null;
   }
 
   public readonly isDirty: boolean;
@@ -48,8 +55,18 @@ export class ControlBasic<Value> extends AbstractControl<
   private readonly data: TControlDataBasic<Value, unknown>;
 
   constructor(
-    { data, value, defaultValue, isTouched, context, validationType, names, onReady, onChange }: IProps<Value>,
-    state?: IState<Value>
+    {
+      data,
+      value,
+      defaultValue,
+      isTouched,
+      context,
+      validationType,
+      names,
+      onReady,
+      onChange,
+    }: IProps<Value>,
+    state?: IState<Value>,
   ) {
     super({
       value,
@@ -77,9 +94,10 @@ export class ControlBasic<Value> extends AbstractControl<
 
   public setValue(
     newValuePre: TControlValue<Value>,
-    extraProps?: TControlSetValueExtraProps
+    extraProps?: TControlSetValueExtraProps,
   ): void {
-    const newValue: TControlValue<Value> = newValuePre === '' ? undefined : newValuePre;
+    const newValue: TControlValue<Value> =
+      newValuePre === '' ? undefined : newValuePre;
     const reqExtraProps = this.getRequiredSetValueExtraProps(extraProps);
     const currentValue = this.getCurrentOrPendingValue();
 
@@ -110,7 +128,11 @@ export class ControlBasic<Value> extends AbstractControl<
   };
 
   protected applyUpdate(comparator: Comparator<Value>): TControl<Value> | null {
-    if (comparator.value.isChanged || comparator.defaultValue.isChanged || comparator.shouldRecreate) {
+    if (
+      comparator.value.isChanged ||
+      comparator.defaultValue.isChanged ||
+      comparator.shouldRecreate
+    ) {
       return this.cloneWithChanges(comparator);
     }
 
@@ -134,13 +156,13 @@ export class ControlBasic<Value> extends AbstractControl<
         onReady: this.onReady,
         onChange: this.onChange,
       },
-      this.state
+      this.state,
     );
   }
 
   private getState(
     state: IState<Value> | undefined,
-    data: TControlDataBasic<Value, unknown>
+    data: TControlDataBasic<Value, unknown>,
   ): IState<Value> {
     if (state) {
       state.validator.onControlInstanceChange(() => this.emitChanges({}));
@@ -165,7 +187,8 @@ export class ControlBasic<Value> extends AbstractControl<
   }
 
   private getCurrentOrPendingValue(): TControlValue<Value> {
-    return this.currentUpdatesData && Object.hasOwn(this.currentUpdatesData, 'value')
+    return this.currentUpdatesData &&
+      Object.hasOwn(this.currentUpdatesData, 'value')
       ? this.currentUpdatesData.value!
       : this.value;
   }
