@@ -10,7 +10,7 @@ import {
   TGetControlDescendantsValidationType,
   TOnControlReady,
 } from './types';
-import { Comparator, Validator } from './utils';
+import { Comparator, UpdatesSubscriber, Validator } from './utils';
 
 interface IProps<Value, UpdateData extends TControlUpdateData<Value>> {
   value: TControlValue<Value>;
@@ -25,7 +25,10 @@ interface IProps<Value, UpdateData extends TControlUpdateData<Value>> {
   onChange: (updateData: UpdateData) => void;
 }
 
-export abstract class AbstractControl<Value, UpdateData extends TControlUpdateData<Value>> {
+export abstract class AbstractControl<
+  Value,
+  UpdateData extends TControlUpdateData<Value>,
+> {
   /**
    * Field path from form root. For example, someField.someOtherField[1].finalField
    */
@@ -67,7 +70,12 @@ export abstract class AbstractControl<Value, UpdateData extends TControlUpdateDa
   protected descendantsContext: unknown;
   protected currentUpdatesData?: UpdateData;
 
-  private createDescendantsContext: (value: TControlValue<Value>, context: unknown) => unknown;
+  private readonly updatesSubscriber = new UpdatesSubscriber();
+
+  private createDescendantsContext: (
+    value: TControlValue<Value>,
+    context: unknown,
+  ) => unknown;
   private isDestroyed: boolean = false;
 
   constructor({
@@ -95,10 +103,16 @@ export abstract class AbstractControl<Value, UpdateData extends TControlUpdateDa
 
     this.onReady({
       applyUpdate: (updateData) => {
-        const newControl = this.applyUpdate(this.createComparator(updateData), updateData);
+        const newControl = this.applyUpdate(
+          this.createComparator(updateData),
+          updateData,
+        );
         if (newControl) {
           this.isDestroyed = true;
           this.currentUpdatesData = undefined;
+          this.updatesSubscriber.destroy();
+        } else {
+          this.updatesSubscriber.emit();
         }
 
         return newControl;
@@ -108,7 +122,10 @@ export abstract class AbstractControl<Value, UpdateData extends TControlUpdateDa
     });
 
     this.validationType = validationType;
-    this.childValidationType = this.getChildValidationType(this.validationType, this.value);
+    this.childValidationType = this.getChildValidationType(
+      this.validationType,
+      this.value,
+    );
   }
 
   /**
@@ -118,20 +135,28 @@ export abstract class AbstractControl<Value, UpdateData extends TControlUpdateDa
     this.setValue(this.defaultValue);
   }
 
+  /**
+   * Do not use it, it should be used only under the hood of useInputValue hook
+   * It allows to subscribe to updates that do not create new instance
+   */
+  public subscribeToUpdates(callback: () => void) {
+    return this.updatesSubscriber.addSubscription(callback);
+  }
+
   protected abstract setValue(
     newValue: TControlValue<Value>,
-    extraProps?: TControlSetValueExtraProps
+    extraProps?: TControlSetValueExtraProps,
   ): void;
 
   protected abstract applyUpdate(
     comparator: Comparator<Value>,
-    updates: TControlUpdateData<Value>
+    updates: TControlUpdateData<Value>,
   ): TControl<Value> | null;
 
   protected abstract destroyState(): void;
 
   protected getRequiredSetValueExtraProps(
-    props: TControlSetValueExtraProps | undefined
+    props: TControlSetValueExtraProps | undefined,
   ): Required<TControlSetValueExtraProps> {
     return {
       noTouch: props?.noTouch ?? false,
@@ -163,9 +188,12 @@ export abstract class AbstractControl<Value, UpdateData extends TControlUpdateDa
     this.destroyState();
   }
 
-  protected readonly getChildValidationType: TGetControlDescendantsValidationType<Value> = (type) => type;
+  protected readonly getChildValidationType: TGetControlDescendantsValidationType<Value> =
+    (type) => type;
 
-  private createComparator(updateData: TControlUpdateData<Value>): Comparator<Value> {
+  private createComparator(
+    updateData: TControlUpdateData<Value>,
+  ): Comparator<Value> {
     const result = new Comparator<Value>(
       {
         data: updateData,
@@ -183,7 +211,7 @@ export abstract class AbstractControl<Value, UpdateData extends TControlUpdateDa
         needContextForDescendantsContext: this.needContextForDescendantsContext,
         validator: this.validator,
       },
-      this.getChildValidationType
+      this.getChildValidationType,
     );
 
     this.context = result.context.currentValue;

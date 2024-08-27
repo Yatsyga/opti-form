@@ -1,6 +1,6 @@
-import { useCallback, useLayoutEffect, useState } from "react";
-import { TControlValue } from "./TControlValue";
-import { TControl } from "./controls";
+import { useCallback, useLayoutEffect, useState } from 'react';
+import { TControlValue } from './TControlValue';
+import { TControl } from './controls';
 
 /**
  * OptiForm applies value updates asynchronously for optimization reasons.
@@ -12,12 +12,23 @@ import { TControl } from "./controls";
 export function useInputValue<T>(control: TControl<T>) {
   const [value, setValue] = useState<TControlValue<T>>(control.value);
 
-  useLayoutEffect(() => setValue(control.value), [control.value]);
+  useLayoutEffect(() => {
+    setValue(control.value);
 
-  const onChange = useCallback((newValue: TControlValue<T>) => {
-    setValue(newValue);
-    control.setValue(newValue as any);
+    const { unsubscribe } = control.subscribeToUpdates(() =>
+      setValue(control.value),
+    );
+
+    return () => unsubscribe();
   }, [control]);
+
+  const onChange = useCallback(
+    (newValue: TControlValue<T>) => {
+      setValue(newValue);
+      control.setValue(newValue as any);
+    },
+    [control],
+  );
 
   return [value, onChange] as const;
 }

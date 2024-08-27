@@ -1,5 +1,11 @@
 import { TControlValue } from '../TControlValue';
-import { ITestFormValue, TestForm, TestFormStateCollector, cloneDeep, testForbiddenSurname } from './utils';
+import {
+  ITestFormValue,
+  TestForm,
+  TestFormStateCollector,
+  cloneDeep,
+  testForbiddenSurname,
+} from './utils';
 
 const testValue: TControlValue<ITestFormValue> = {
   title: 'zinga',
@@ -68,7 +74,11 @@ describe('OptiForm', () => {
         },
       };
 
-      const testForm = new TestForm({ value, defaultValue: testValue, context: new Set(forbiddenNames) });
+      const testForm = new TestForm({
+        value,
+        defaultValue: testValue,
+        context: new Set(forbiddenNames),
+      });
       const collector = new TestFormStateCollector({
         value,
         defaultValue: testValue,
@@ -83,7 +93,10 @@ describe('OptiForm', () => {
   });
 
   test('Form must not break with various updates throw iterations', async () => {
-    const testForm = new TestForm({ value: testValue, defaultValue: testValue });
+    const testForm = new TestForm({
+      value: testValue,
+      defaultValue: testValue,
+    });
     const newValue = cloneDeep(testValue);
 
     newValue.title = 'newValue';
@@ -91,7 +104,7 @@ describe('OptiForm', () => {
     await testForm.waitForUpdate();
     newValue!.additionalData!.people![1].name = 'newName';
     testForm.form.fields.additionalData.fields.people.list[1].control.fields.name.setValue(
-      newValue!.additionalData!.people![1].name
+      newValue!.additionalData!.people![1].name,
     );
     await testForm.waitForUpdate();
     newValue!.additionalData!.people!.splice(0, 1);
@@ -99,7 +112,7 @@ describe('OptiForm', () => {
     await testForm.waitForUpdate();
     newValue!.additionalData!.people![0].surname = 'Macleod';
     testForm.form.fields.additionalData.fields.people.list[0].control.fields.surname.setValue(
-      newValue!.additionalData!.people![0].surname
+      newValue!.additionalData!.people![0].surname,
     );
     newValue!.other!.splice(1, 1);
     testForm.form.fields.other.list[1].delete();
@@ -119,15 +132,22 @@ describe('OptiForm', () => {
   });
 
   test('Reset applies default value and clears touched states', async () => {
-    const testForm = new TestForm({ value: testValue, defaultValue: testValue });
+    const testForm = new TestForm({
+      value: testValue,
+      defaultValue: testValue,
+    });
 
     testForm.form.fields.title.setValue('newValue');
     await testForm.waitForUpdate();
-    testForm.form.fields.additionalData.fields.people.list[1].control.fields.name.setValue('new name');
+    testForm.form.fields.additionalData.fields.people.list[1].control.fields.name.setValue(
+      'new name',
+    );
     await testForm.waitForUpdate();
     testForm.form.fields.additionalData.fields.people.list[0].delete();
     await testForm.waitForUpdate();
-    testForm.form.fields.additionalData.fields.people.list[0].control.fields.surname.setValue('Macleod');
+    testForm.form.fields.additionalData.fields.people.list[0].control.fields.surname.setValue(
+      'Macleod',
+    );
     testForm.form.fields.other.list[1].delete();
     await testForm.waitForUpdate();
     testForm.form.reset();
@@ -142,7 +162,10 @@ describe('OptiForm', () => {
 
   test('Setting context will trigger validation', async () => {
     const forbiddenSurnames = new Set([testValue.starter!.surname!]);
-    const testForm = new TestForm({ value: testValue, defaultValue: testValue });
+    const testForm = new TestForm({
+      value: testValue,
+      defaultValue: testValue,
+    });
 
     testForm.form.setContext(forbiddenSurnames);
     await testForm.waitForUpdate();
@@ -159,7 +182,10 @@ describe('OptiForm', () => {
 
   describe('Calling method getValidValue', () => {
     test('If no updates are pending should resolve Promise right away', async () => {
-      const testForm = new TestForm({ value: testValue, defaultValue: testValue });
+      const testForm = new TestForm({
+        value: testValue,
+        defaultValue: testValue,
+      });
       let emitted: ITestFormValue | undefined | null = undefined;
 
       testForm.form.getValidValue().then((value) => (emitted = value));
@@ -168,7 +194,10 @@ describe('OptiForm', () => {
     });
 
     test('If update is pending and validation passes should return value on next instance creation', async () => {
-      const testForm = new TestForm({ value: testValue, defaultValue: testValue });
+      const testForm = new TestForm({
+        value: testValue,
+        defaultValue: testValue,
+      });
       let emitted: ITestFormValue | undefined | null = undefined;
       const newTitle = 'new ' + testValue.title;
       const newValue = { ...testValue, title: newTitle };
@@ -183,8 +212,15 @@ describe('OptiForm', () => {
       let emitted: ITestFormValue | undefined | null = undefined;
       const newStarterSurname = 'new ' + testValue.starter!.surname;
       const forbiddenNames = new Set([newStarterSurname]);
-      const newValue = { ...testValue, starter: { ...testValue.starter!, surname: newStarterSurname } };
-      const testForm = new TestForm({ value: testValue, defaultValue: testValue, context: forbiddenNames });
+      const newValue = {
+        ...testValue,
+        starter: { ...testValue.starter!, surname: newStarterSurname },
+      };
+      const testForm = new TestForm({
+        value: testValue,
+        defaultValue: testValue,
+        context: forbiddenNames,
+      });
 
       testForm.form.fields.starter.fields.surname.setValue(newStarterSurname);
       testForm.form.getValidValue().then((value) => (emitted = value));
@@ -195,40 +231,76 @@ describe('OptiForm', () => {
     describe('Applying custom errors', () => {
       describe('From flat list', () => {
         test('With present errors must apply them to fields', async () => {
-          const testForm = new TestForm({ value: testValue, defaultValue: testValue });
+          const testForm = new TestForm({
+            value: testValue,
+            defaultValue: testValue,
+          });
           testForm.form.applyFlatErrorsList([
             { error: { message: 'title bazinga' }, path: 'title' },
-            { error: { message: 'starter surname bazinga' }, path: 'starter.surname' },
+            {
+              error: { message: 'starter surname bazinga' },
+              path: 'starter.surname',
+            },
             { error: { message: 'other bazinga' }, path: 'other' },
             { error: { message: 'other child bazinga' }, path: 'other.1' },
-            { error: { message: 'other child name bazinga' }, path: 'other.1.name' },
-            { error: { message: 'other child surname bazinga' }, path: 'other[1].surname' },
+            {
+              error: { message: 'other child name bazinga' },
+              path: 'other.1.name',
+            },
+            {
+              error: { message: 'other child surname bazinga' },
+              path: 'other[1].surname',
+            },
           ]);
           await testForm.waitForUpdate();
 
-          expect(testForm.form.fields.title.error).toEqual({ message: 'title bazinga' });
-          expect(testForm.form.fields.starter.fields.surname.error).toEqual({ message: 'starter surname bazinga' });
-          expect(testForm.form.fields.other.error).toEqual({ message: 'other bazinga' });
+          expect(testForm.form.fields.title.error).toEqual({
+            message: 'title bazinga',
+          });
+          expect(testForm.form.fields.starter.fields.surname.error).toEqual({
+            message: 'starter surname bazinga',
+          });
+          expect(testForm.form.fields.other.error).toEqual({
+            message: 'other bazinga',
+          });
           expect(testForm.form.fields.other.list[0].control.isValid).toBe(true);
-          expect(testForm.form.fields.other.list[1].control.error).toEqual({ message: 'other child bazinga' });
-          expect(testForm.form.fields.other.list[1].control.fields.name.error).toEqual({
+          expect(testForm.form.fields.other.list[1].control.error).toEqual({
+            message: 'other child bazinga',
+          });
+          expect(
+            testForm.form.fields.other.list[1].control.fields.name.error,
+          ).toEqual({
             message: 'other child name bazinga',
           });
-          expect(testForm.form.fields.other.list[1].control.fields.surname.error).toEqual({
+          expect(
+            testForm.form.fields.other.list[1].control.fields.surname.error,
+          ).toEqual({
             message: 'other child surname bazinga',
           });
         });
       });
 
       test('If control is modified after custom errors apply, should remove error', async () => {
-        const testForm = new TestForm({ value: testValue, defaultValue: testValue });
+        const testForm = new TestForm({
+          value: testValue,
+          defaultValue: testValue,
+        });
         testForm.form.applyFlatErrorsList([
           { error: { message: 'title bazinga' }, path: 'title' },
-          { error: { message: 'starter surname bazinga' }, path: 'starter.surname' },
+          {
+            error: { message: 'starter surname bazinga' },
+            path: 'starter.surname',
+          },
           { error: { message: 'other bazinga' }, path: 'other' },
           { error: { message: 'other child bazinga' }, path: 'other.1' },
-          { error: { message: 'other child name bazinga' }, path: 'other.1.name' },
-          { error: { message: 'other child surname bazinga' }, path: 'other[1].surname' },
+          {
+            error: { message: 'other child name bazinga' },
+            path: 'other.1.name',
+          },
+          {
+            error: { message: 'other child surname bazinga' },
+            path: 'other[1].surname',
+          },
         ]);
         await testForm.waitForUpdate();
 
@@ -247,7 +319,6 @@ describe('OptiForm', () => {
     //   const asyncValidationDuration = 1000;
     //   const testForm = new TestForm({ value: testValue, defaultValue: testValue, context: new Set(forbiddenNames), asyncValidationDuration: 1000 });
 
-    //   console.log('test start');
     //   testForm.form.fields.other.list[0].control.fields.surname.setValue(forbiddenNames[0]);
     //   testForm.form.getValidValue().then((value) => emitted = value);
     //   jest.advanceTimersByTime(0);
@@ -256,7 +327,6 @@ describe('OptiForm', () => {
     //   expect(emitted).toBe(undefined);
     //   jest.advanceTimersByTime(1);
     //   expect(emitted).toBe(undefined);
-    //   console.log('test end');
     //   // expect(emitted).toBe(null);
 
     //   jest.useRealTimers();

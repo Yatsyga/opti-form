@@ -26,7 +26,7 @@ interface IUpdateData<Value extends TControlObjectValue> {
 
 export class OptiForm<Value extends TControlObjectValue, Context = null> {
   public static create<Value extends TControlObjectValue, Context>(
-    props: TFormCreationProps<Value, Context>
+    props: TFormCreationProps<Value, Context>,
   ): OptiForm<Value, Context> {
     return new OptiForm(
       {
@@ -37,13 +37,13 @@ export class OptiForm<Value extends TControlObjectValue, Context = null> {
         defaultValue: props.defaultValue,
         context: props.context,
         validationType: props.validationType,
-      }
+      },
     );
   }
 
   private static modify<Value extends TControlObjectValue, Context>(
     constantProps: IConstantProps<Value, Context>,
-    state: FormState<Value, Context>
+    state: FormState<Value, Context>,
   ): OptiForm<Value, Context> {
     return new OptiForm(constantProps, state);
   }
@@ -81,7 +81,7 @@ export class OptiForm<Value extends TControlObjectValue, Context = null> {
 
   constructor(
     private readonly constantProps: IConstantProps<Value, Context>,
-    arg: IProps<Value, Context> | FormState<Value, Context>
+    arg: IProps<Value, Context> | FormState<Value, Context>,
   ) {
     this.state = this.getState(arg);
   }
@@ -91,15 +91,23 @@ export class OptiForm<Value extends TControlObjectValue, Context = null> {
   }
 
   public reset(props?: TResetProps<Value>): void {
-    const newValue = props && Object.hasOwn(props, 'value') ? props.value : this.defaultValue;
+    const newValue =
+      props && Object.hasOwn(props, 'value') ? props.value : this.defaultValue;
     this.state.rootControl.setValue(newValue, { noTouch: true });
 
     if (!props?.keepIsTouched) {
       this.modifyExternalUpdate({ isTouched: false });
     }
 
-    if (props && (Object.hasOwn(props, 'value') || Object.hasOwn(props, 'defaultValue'))) {
-      this.modifyExternalUpdate({ defaultValue: Object.hasOwn(props, 'defaultValue') ? props.defaultValue : newValue });
+    if (
+      props &&
+      (Object.hasOwn(props, 'value') || Object.hasOwn(props, 'defaultValue'))
+    ) {
+      this.modifyExternalUpdate({
+        defaultValue: Object.hasOwn(props, 'defaultValue')
+          ? props.defaultValue
+          : newValue,
+      });
     }
   }
 
@@ -111,7 +119,9 @@ export class OptiForm<Value extends TControlObjectValue, Context = null> {
     this.modifyExternalUpdate({ context });
   }
 
-  public setOnChange(callback: (newForm: OptiForm<Value, Context>) => void): void {
+  public setOnChange(
+    callback: (newForm: OptiForm<Value, Context>) => void,
+  ): void {
     this.constantProps.onChange = callback;
   }
 
@@ -128,7 +138,8 @@ export class OptiForm<Value extends TControlObjectValue, Context = null> {
   }
 
   public applyFlatErrorsList(flatErrors: TControlExternalErrorFlat[]): void {
-    const customErrors = this.state.customErrorsHandler.getCustomErrorsFromFlatList(flatErrors);
+    const customErrors =
+      this.state.customErrorsHandler.getCustomErrorsFromFlatList(flatErrors);
     if (customErrors.length > 0) {
       this.onChange({ customErrors }, 'external');
     }
@@ -140,7 +151,7 @@ export class OptiForm<Value extends TControlObjectValue, Context = null> {
   }
 
   private getState(
-    arg: IProps<Value, Context> | FormState<Value, Context>
+    arg: IProps<Value, Context> | FormState<Value, Context>,
   ): FormState<Value, Context> {
     const onChange = (updateData: TControlUpdateData<Value>) => {
       return this.onChange(updateData, 'internal');
@@ -161,7 +172,10 @@ export class OptiForm<Value extends TControlObjectValue, Context = null> {
     });
   }
 
-  private onChange(updateData: TControlUpdateData<Value>, key: keyof IUpdateData<Value>): void {
+  private onChange(
+    updateData: TControlUpdateData<Value>,
+    key: keyof IUpdateData<Value>,
+  ): void {
     const shouldStartCountdown = this.updateData === undefined;
     if (!this.updateData) {
       this.updateData = {};
@@ -180,7 +194,7 @@ export class OptiForm<Value extends TControlObjectValue, Context = null> {
       const finalUpdate: TControlUpdateData<Value> = Object.assign(
         {},
         this.updateData.internal,
-        this.updateData.external
+        this.updateData.external,
       );
 
       const needUpdate = this.state.applyUpdate(finalUpdate);
@@ -189,14 +203,16 @@ export class OptiForm<Value extends TControlObjectValue, Context = null> {
         return;
       }
 
-      this.constantProps.onChange?.(OptiForm.modify(this.constantProps, this.state));
+      this.constantProps.onChange?.(
+        OptiForm.modify(this.constantProps, this.state),
+      );
     }, 0);
   }
 
   private modifyExternalUpdate(updateData: TControlUpdateData<Value>): void {
     const externalUpdate: TControlUpdateData<Value> = Object.assign(
       this.updateData?.external ?? {},
-      updateData
+      updateData,
     );
     this.onChange(externalUpdate, 'external');
   }
