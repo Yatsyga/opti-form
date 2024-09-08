@@ -1,8 +1,8 @@
 import { TControlValue } from '../TControlValue';
 import {
-    TControlDataFields,
-    TControlDataObject,
-    createObject,
+  TControlDataFields,
+  TControlDataObject,
+  createObject,
 } from '../control-data';
 import { TControlInternalCallbacks } from '../controls';
 import { ControlObject } from '../controls/object';
@@ -20,8 +20,8 @@ interface IProps<Value extends TControlObjectValue, Context> {
   onChange: (updateData: TControlUpdateData<Value>) => void;
 }
 
-interface TValueObserver<Value> {
-  promise: Promise<Value | null>;
+interface TValueObserver {
+  promise: Promise<void>;
   resolve: () => void;
 }
 
@@ -31,9 +31,12 @@ export class FormState<Value extends TControlObjectValue, Context> {
   public rootControl: ControlObject<Value>;
   public validationType: FormValidationType;
 
-  private rootCallbacks!: TControlInternalCallbacks<Value, TControlUpdateData<Value>>;
+  private rootCallbacks!: TControlInternalCallbacks<
+    Value,
+    TControlUpdateData<Value>
+  >;
   private onChange: (updateData: TControlUpdateData<Value>) => void;
-  private valueObserver: TValueObserver<Value> | null = null;
+  private valueObserver: TValueObserver | null = null;
 
   constructor(props: IProps<Value, Context>) {
     this.onChange = props.onChange;
@@ -44,7 +47,9 @@ export class FormState<Value extends TControlObjectValue, Context> {
     this.rootControl = this.createRootControl(rootControlData, props);
   }
 
-  public onInstanceChange(newOnChange: (updateData: TControlUpdateData<Value>) => void): void {
+  public onInstanceChange(
+    newOnChange: (updateData: TControlUpdateData<Value>) => void,
+  ): void {
     this.onChange = newOnChange;
     if (this.rootControl.isValidating || !this.valueObserver) {
       return;
@@ -71,17 +76,22 @@ export class FormState<Value extends TControlObjectValue, Context> {
     return true;
   }
 
-  public waitForValidValue(): Promise<Value | null> {
+  public async getValidValue(): Promise<Value | null> {
+    const [isValid, value] = await this.rootCallbacks.getValidValue();
+    return isValid ? (value as Value) : null;
+  }
+
+  public waitForUpdateApply(): Promise<void> {
     if (!this.valueObserver) {
-      let resolve: (value: Value | null) => void;
-      const promise = new Promise<Value | null>((newResolve) => {
+      let resolve: () => void;
+      const promise = new Promise<void>((newResolve) => {
         resolve = newResolve;
       });
 
       this.valueObserver = {
         promise,
         resolve: () => {
-          resolve(this.rootControl.isValid ? (this.rootControl.value as Value) : null);
+          resolve();
           this.valueObserver = null;
         },
       };
@@ -97,7 +107,7 @@ export class FormState<Value extends TControlObjectValue, Context> {
   }
 
   private createRootControlData(
-    fieldsData: TControlDataFields<Value, Context>
+    fieldsData: TControlDataFields<Value, Context>,
   ): TControlDataObject<Value, unknown> {
     return createObject<Value, Context>({
       fieldsData,
@@ -107,7 +117,7 @@ export class FormState<Value extends TControlObjectValue, Context> {
 
   private createRootControl(
     data: TControlDataObject<Value, unknown>,
-    { value, defaultValue, context, validationType }: IProps<Value, Context>
+    { value, defaultValue, context, validationType }: IProps<Value, Context>,
   ): ControlObject<Value> {
     return ControlObject.create<Value>({
       data,
@@ -123,7 +133,8 @@ export class FormState<Value extends TControlObjectValue, Context> {
           TControlUpdateData<Value>
         >;
       },
-      onChange: (changes) => this.onChange(changes as TControlUpdateData<Value>),
+      onChange: (changes) =>
+        this.onChange(changes as TControlUpdateData<Value>),
       createChildNames: (_names, key) => ({ dynamic: key, static: key }),
     }) as ControlObject<Value>;
   }

@@ -1,5 +1,4 @@
 import { TControlValue } from '../../TControlValue';
-import { TControlCustomError } from '../../types';
 import {
   FormValidationType,
   TControlError,
@@ -34,7 +33,10 @@ interface ICache<Value> {
 }
 
 export class Validator<Value> {
-  public static checkShouldValidate(validationType: FormValidationType, isTouched: boolean): boolean {
+  public static checkShouldValidate(
+    validationType: FormValidationType,
+    isTouched: boolean,
+  ): boolean {
     switch (validationType) {
       case FormValidationType.always:
         return true;
@@ -45,11 +47,17 @@ export class Validator<Value> {
     }
   }
 
-  public error: TControlError | null = null;
-  public isValidating: boolean = false;
+  public get error(): TControlError | null {
+    return this.isErrorVisible ? this.currentError : null;
+  }
+
+  public get isValidating(): boolean {
+    return this.isErrorVisible ? this.internalIsValidating : false;
+  }
+
   public needUpdate: boolean = false;
 
-  private readonly validate: TValidateControl<Value, unknown>;
+  private readonly validationCallback: TValidateControl<Value, unknown>;
   private readonly validationDebounceMs: number;
   private readonly usesContext: boolean;
   private readonly noValueError: TControlError | null;
@@ -57,6 +65,9 @@ export class Validator<Value> {
   private cancelAsyncValidation: () => void = () => {};
   private onFinishAsyncValidation: () => void;
   private cache?: ICache<Value>;
+  private currentError: TControlError | null = null;
+  private isErrorVisible: boolean = false;
+  private internalIsValidating: boolean = false;
 
   constructor({
     validate,
@@ -66,7 +77,7 @@ export class Validator<Value> {
     usesContext,
     noValueError,
   }: IProps<Value>) {
-    this.validate = validate;
+    this.validationCallback = validate;
     this.validationDebounceMs = validationDebounceMs;
     this.onFinishAsyncValidation = onFinishAsyncValidation;
     this.usesContext = usesContext;
@@ -77,35 +88,42 @@ export class Validator<Value> {
 
   public onChange(props: IOnChangeProps<Value>): void {
     this.cancelAsyncValidation();
+    this.isErrorVisible = Validator.checkShouldValidate(
+      props.validationType,
+      props.isTouched,
+    );
 
     if (props.customError) {
-      this.error = props.customError;
-      this.isValidating = false;
+      this.currentError = props.customError;
+      this.internalIsValidating = false;
       return;
     }
 
-    if (!Validator.checkShouldValidate(props.validationType, props.isTouched)) {
+    if (!this.isErrorVisible) {
       if (this.error) {
-        this.error = null;
-        this.isValidating = false;
+        this.currentError = null;
+        this.internalIsValidating = false;
       }
       return;
     }
 
     if (props.value === undefined && this.noValueError) {
-      this.error = this.noValueError;
-      this.isValidating = false;
+      this.currentError = this.noValueError;
+      this.internalIsValidating = false;
       return;
     }
 
     if (!this.validationDebounceMs || props.value === undefined) {
-      this.syncInternalValidate(props, false);
+      this.validate(props, false);
       return;
     }
 
-    this.isValidating = true;
-    this.error = null;
-    const timer = setTimeout(() => this.syncInternalValidate(props, true), this.validationDebounceMs);
+    this.internalIsValidating = true;
+    this.currentError = null;
+    const timer = setTimeout(
+      () => this.validate(props, true),
+      this.validationDebounceMs,
+    );
     this.cancelAsyncValidation = () => clearTimeout(timer);
   }
 
@@ -114,7 +132,13 @@ export class Validator<Value> {
     this.onFinishAsyncValidation = callback;
   }
 
-  public setCustomErrors(errors: TControlCustomError[]): void {}
+  public async checkIsValid(
+    value: TControlValue<Value>,
+    context: unknown,
+  ): Promise<boolean> {
+    const validationResult = await this.getValidationResult(value, context);
+    return validationResult === null;
+  }
 
   public destroy(): void {
     this.cancelAsyncValidation();
@@ -122,8 +146,14 @@ export class Validator<Value> {
     this.onFinishAsyncValidation = () => {};
   }
 
-  private syncInternalValidate(props: IOnChangeProps<Value>, shouldCallFinishAsyncValidation: boolean): void {
-    const newValidationResult = this.internalValidate(props);
+  private validate(
+    props: IOnChangeProps<Value>,
+    shouldCallFinishAsyncValidation: boolean,
+  ): void {
+    const newValidationResult = this.getValidationResult(
+      props.value,
+      props.context,
+    );
 
     if (newValidationResult instanceof Promise) {
       this.handleAsyncValidation(newValidationResult);
@@ -132,32 +162,43 @@ export class Validator<Value> {
 
     const changed = this.error !== newValidationResult;
 
-    this.isValidating = false;
-    this.error = newValidationResult;
+    this.internalIsValidating = false;
+    this.currentError = newValidationResult;
     if (changed && shouldCallFinishAsyncValidation) {
       this.needUpdate = true;
       this.onFinishAsyncValidation();
     }
   }
 
-  private internalValidate(props: IOnChangeProps<Value>): TControlValidationResult {
-    const context = this.usesContext ? props.context : null;
-    if (this.cache && this.cache.value === props.value && this.cache.context === context) {
+  private getValidationResult(
+    value: TControlValue<Value>,
+    contextPre: unknown,
+  ): TControlValidationResult {
+    if (value === undefined && this.noValueError) {
+      return this.noValueError;
+    }
+
+    const context = this.usesContext ? contextPre : null;
+    if (
+      this.cache &&
+      this.cache.value === value &&
+      this.cache.context === context
+    ) {
       return this.cache.result;
     }
 
-    const result = this.validate(props.value, context);
-    this.cache = { value: props.value, context, result };
+    const result = this.validationCallback(value, context);
+    this.cache = { value, context, result };
 
     return result;
   }
 
   private handleAsyncValidation(promise: Promise<TControlError | null>): void {
-    this.isValidating = true;
+    this.internalIsValidating = true;
     let onFinishValidating = (error: TControlError | null) => {
-      this.error = error;
+      this.currentError = error;
       this.needUpdate = true;
-      this.isValidating = false;
+      this.internalIsValidating = false;
       this.onFinishAsyncValidation();
     };
 

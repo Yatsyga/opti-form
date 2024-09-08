@@ -143,6 +143,13 @@ export class ControlBasic<Value> extends AbstractControl<
     this.state.validator.destroy();
   }
 
+  protected readonly getValidValue = (): Promise<[boolean, Value | null]> => {
+    const value = this.value;
+    return this.validator.checkIsValid(value, this.context).then((isValid) => {
+      return isValid ? [true, value as Value] : [false, null];
+    });
+  };
+
   private cloneWithChanges(comparator: Comparator<Value>): TControl<Value> {
     return ControlBasic.modify<Value>(
       {

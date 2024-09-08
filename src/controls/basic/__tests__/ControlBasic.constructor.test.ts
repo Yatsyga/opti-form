@@ -45,7 +45,10 @@ describe('ControlBasic.constructor', () => {
   test('Setting name property', () => {
     const names: TControlNames = { dynamic: 'bazinga', static: 'unused' };
 
-    const [control] = createTestControl<number | undefined>({ data: createBasic({}), names });
+    const [control] = createTestControl<number | undefined>({
+      data: createBasic({}),
+      names,
+    });
     expect(control.name).toBe(names.dynamic);
   });
 
@@ -157,7 +160,9 @@ describe('ControlBasic.constructor', () => {
           const validate = jest.fn().mockReturnValue(Promise.resolve(null));
           const onChange = jest.fn();
 
-          const [control, { applyUpdate }] = createTestControl<number | undefined>({
+          const [control, { applyUpdate }] = createTestControl<
+            number | undefined
+          >({
             data: createBasic({ validate }),
             validationType: FormValidationType.always,
             onChange,
@@ -181,7 +186,9 @@ describe('ControlBasic.constructor', () => {
           const validate = jest.fn().mockReturnValue(Promise.resolve(error));
           const onChange = jest.fn();
 
-          const [control, { applyUpdate }] = createTestControl<number | undefined>({
+          const [control, { applyUpdate }] = createTestControl<
+            number | undefined
+          >({
             data: createBasic({ validate }),
             validationType: FormValidationType.always,
             onChange,

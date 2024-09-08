@@ -26,11 +26,17 @@ export type IChildrenMap<Value extends TControlArrayValue> = Record<
   {
     index: number;
     control: TControl<Value[number]>;
-    callbacks: TControlInternalCallbacks<Value[number], TControlUpdateData<Value[number]>>;
+    callbacks: TControlInternalCallbacks<
+      Value[number],
+      TControlUpdateData<Value[number]>
+    >;
   }
 >;
 
-export class ArrayChildrenStore<Value extends TControlArrayValue, DescendantsContext> {
+export class ArrayChildrenStore<
+  Value extends TControlArrayValue,
+  DescendantsContext,
+> {
   public get list(): TControlArrayItem<Value[number]>[] {
     return this.itemsList.slice();
   }
@@ -60,14 +66,14 @@ export class ArrayChildrenStore<Value extends TControlArrayValue, DescendantsCon
   constructor(
     private readonly childData: TControlData<Value[number], DescendantsContext>,
     private callbacks: TArrayChildrenStoreCallbacks<Value>,
-    props: IProps<Value, DescendantsContext>
+    props: IProps<Value, DescendantsContext>,
   ) {
     this.itemsList = this.createItemsList(props);
   }
 
   public applyChildrenChanges(
     updatesPre: TArrayExtraUpdateProps<Value>['childrenUpdates'],
-    comparator: Comparator<Value>
+    comparator: Comparator<Value>,
   ): boolean {
     const updates = this.getFinalChildrenUpdates(updatesPre, comparator);
     if (!updates) {
@@ -83,12 +89,18 @@ export class ArrayChildrenStore<Value extends TControlArrayValue, DescendantsCon
       }
 
       anyChildChanged = true;
-      this.itemsList[index] = new TControlArrayItem<Value[number]>(id, newControl, this.onChildDelete);
+      this.itemsList[index] = new TControlArrayItem<Value[number]>(
+        id,
+        newControl,
+        this.onChildDelete,
+      );
       this.statesStore.setChild(id, newControl);
     });
 
     const deletedIndexes = updates.deleted
-      ? Array.from(updates.deleted).sort((item1, item2) => (item1 > item2 ? -1 : 1))
+      ? Array.from(updates.deleted).sort((item1, item2) =>
+          item1 > item2 ? -1 : 1,
+        )
       : [];
     deletedIndexes.forEach((index) => {
       const id = this.itemsList[index].id;
@@ -100,7 +112,8 @@ export class ArrayChildrenStore<Value extends TControlArrayValue, DescendantsCon
 
     const props: IProps<Value, DescendantsContext> = {
       names: comparator.names.currentValue,
-      descendantsContext: comparator.descendantsContext.currentValue as DescendantsContext,
+      descendantsContext: comparator.descendantsContext
+        .currentValue as DescendantsContext,
       value: comparator.value.currentValue,
       defaultValue: comparator.defaultValue.currentValue,
       isTouched: false,
@@ -113,17 +126,29 @@ export class ArrayChildrenStore<Value extends TControlArrayValue, DescendantsCon
       this.itemsList.splice(
         index + modifier,
         0,
-        ...after.map((_val, itemIndex) => this.createNewListItem(index + itemIndex + modifier, props))
+        ...after.map((_val, itemIndex) =>
+          this.createNewListItem(index + itemIndex + modifier, props),
+        ),
       );
     });
 
     const minDeletedIndex =
-      deletedIndexes.length > 0 ? deletedIndexes[deletedIndexes.length - 1] : this.itemsList.length;
+      deletedIndexes.length > 0
+        ? deletedIndexes[deletedIndexes.length - 1]
+        : this.itemsList.length;
     for (let index = minDeletedIndex; index < this.itemsList.length; index++) {
       this.childrenMap[this.itemsList[index].id].index = index;
     }
 
     return anyChildChanged;
+  }
+
+  public getAllChildrenAreValid(): Promise<boolean> {
+    return Promise.all(
+      this.list.map((control) =>
+        this.childrenMap[control.id].callbacks.getValidValue(),
+      ),
+    ).then((isValids) => isValids.every(([isValid]) => isValid));
   }
 
   public setCallbacks(callbacks: TArrayChildrenStoreCallbacks<Value>): void {
@@ -138,7 +163,9 @@ export class ArrayChildrenStore<Value extends TControlArrayValue, DescendantsCon
     }
   }
 
-  private createItemsList(props: IProps<Value, DescendantsContext>): TControlArrayItem<Value[number]>[] {
+  private createItemsList(
+    props: IProps<Value, DescendantsContext>,
+  ): TControlArrayItem<Value[number]>[] {
     const result: TControlArrayItem<Value[number]>[] = [];
 
     props.value?.forEach((_value, index) => {
@@ -148,11 +175,19 @@ export class ArrayChildrenStore<Value extends TControlArrayValue, DescendantsCon
     return result;
   }
 
-  private readonly onChildDelete = (id: string) => this.callbacks.onChildDelete(this.childrenMap[id].index);
+  private readonly onChildDelete = (id: string) =>
+    this.callbacks.onChildDelete(this.childrenMap[id].index);
 
   private createNewListItem(
     index: number,
-    { names, descendantsContext, value, defaultValue, isTouched, validationType }: IProps<Value, DescendantsContext>
+    {
+      names,
+      descendantsContext,
+      value,
+      defaultValue,
+      isTouched,
+      validationType,
+    }: IProps<Value, DescendantsContext>,
   ): TControlArrayItem<Value[number]> {
     const id = this.idCounter.toString(16);
     this.idCounter += 1;
@@ -179,14 +214,21 @@ export class ArrayChildrenStore<Value extends TControlArrayValue, DescendantsCon
     this.childrenMap[id] = { control, index, callbacks };
     this.statesStore.setChild(id, control);
 
-    return new TControlArrayItem<Value[number]>(id, control, this.onChildDelete);
+    return new TControlArrayItem<Value[number]>(
+      id,
+      control,
+      this.onChildDelete,
+    );
   }
 
   private getFinalChildrenUpdates(
     updateData: TArrayExtraUpdateProps<Value>['childrenUpdates'],
-    comparator: Comparator<Value>
+    comparator: Comparator<Value>,
   ): TArrayExtraUpdateProps<Value>['childrenUpdates'] {
-    const customErrorsMap = this.getCustomErrorsMap(comparator.customErrors, comparator.value.currentValue);
+    const customErrorsMap = this.getCustomErrorsMap(
+      comparator.customErrors,
+      comparator.value.currentValue,
+    );
 
     if (
       !comparator.shouldEnrichDescendantsContext &&
@@ -197,8 +239,11 @@ export class ArrayChildrenStore<Value extends TControlArrayValue, DescendantsCon
     }
 
     const deleted = updateData?.deleted ?? new Set<number>();
-    const minDeletedIndex = deleted.size > 0 ? Math.min(...Array.from(deleted)) : null;
-    const changed = new Map<number, TControlUpdateData<Value[number]>>(updateData?.changed);
+    const minDeletedIndex =
+      deleted.size > 0 ? Math.min(...Array.from(deleted)) : null;
+    const changed = new Map<number, TControlUpdateData<Value[number]>>(
+      updateData?.changed,
+    );
 
     for (let indexPre = 0; indexPre < this.itemsList.length; indexPre++) {
       if (deleted.has(indexPre)) {
@@ -216,8 +261,10 @@ export class ArrayChildrenStore<Value extends TControlArrayValue, DescendantsCon
         initialUpdate: changed.get(indexPre) ?? {},
         customErrors: customErrorsMap[indexPre],
         forceEnrich: deletedBefore > 0,
-        getDefaultValue: (defaultValue) => (defaultValue ? defaultValue[index] : undefined),
-        getNames: () => createArrayChildNames(comparator.names.currentValue, index),
+        getDefaultValue: (defaultValue) =>
+          defaultValue ? defaultValue[index] : undefined,
+        getNames: () =>
+          createArrayChildNames(comparator.names.currentValue, index),
       });
       changed.set(indexPre, enrichedData as TControlUpdateData<Value[number]>);
     }
@@ -227,7 +274,7 @@ export class ArrayChildrenStore<Value extends TControlArrayValue, DescendantsCon
 
   private getCustomErrorsMap(
     customErrors: TControlCustomError[],
-    newValue: TControlValue<Value>
+    newValue: TControlValue<Value>,
   ): Record<number, TControlCustomError[]> {
     const result: Record<number, TControlCustomError[]> = {};
 

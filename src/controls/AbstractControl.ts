@@ -119,6 +119,7 @@ export abstract class AbstractControl<
         return newControl;
       },
       clearUpdate: () => (this.currentUpdatesData = undefined),
+      getValidValue: () => this.getValidValue(),
       destroy: () => this.destroyControl(),
     });
 
@@ -155,6 +156,8 @@ export abstract class AbstractControl<
   ): TControl<Value> | null;
 
   protected abstract destroyState(): void;
+
+  protected abstract getValidValue(): Promise<[boolean, Value | null]>;
 
   protected getRequiredSetValueExtraProps(
     props: TControlSetValueExtraProps | undefined,

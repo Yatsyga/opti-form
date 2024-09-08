@@ -181,6 +181,9 @@ describe('OptiForm', () => {
   });
 
   describe('Calling method getValidValue', () => {
+    const waitUpdate = () =>
+      new Promise<void>((resolve) => setTimeout(resolve, 0));
+
     test('If no updates are pending should resolve Promise right away', async () => {
       const testForm = new TestForm({
         value: testValue,
@@ -189,7 +192,7 @@ describe('OptiForm', () => {
       let emitted: ITestFormValue | undefined | null = undefined;
 
       testForm.form.getValidValue().then((value) => (emitted = value));
-      await Promise.resolve();
+      await waitUpdate();
       expect(emitted).toEqual(testValue);
     });
 
@@ -205,6 +208,7 @@ describe('OptiForm', () => {
       testForm.form.fields.title.setValue(newTitle);
       testForm.form.getValidValue().then((value) => (emitted = value));
       await testForm.waitForUpdate();
+      await waitUpdate();
       expect(emitted).toEqual(newValue);
     });
 
@@ -212,10 +216,6 @@ describe('OptiForm', () => {
       let emitted: ITestFormValue | undefined | null = undefined;
       const newStarterSurname = 'new ' + testValue.starter!.surname;
       const forbiddenNames = new Set([newStarterSurname]);
-      const newValue = {
-        ...testValue,
-        starter: { ...testValue.starter!, surname: newStarterSurname },
-      };
       const testForm = new TestForm({
         value: testValue,
         defaultValue: testValue,
@@ -225,6 +225,7 @@ describe('OptiForm', () => {
       testForm.form.fields.starter.fields.surname.setValue(newStarterSurname);
       testForm.form.getValidValue().then((value) => (emitted = value));
       await testForm.waitForUpdate();
+      await waitUpdate();
       expect(emitted).toBe(null);
     });
 

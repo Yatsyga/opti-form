@@ -126,15 +126,13 @@ export class OptiForm<Value extends TControlObjectValue, Context = null> {
   }
 
   public getValidValue(): Promise<Value | null> {
-    if (this.state.validationType !== FormValidationType.always) {
-      this.modifyExternalUpdate({ validationType: FormValidationType.always });
+    if (!this.updateData) {
+      return this.state.getValidValue();
     }
 
-    if (!this.updateData && !this.isValidating) {
-      return Promise.resolve(this.isValid ? (this.value as Value) : null);
-    }
-
-    return this.state.waitForValidValue();
+    return this.state
+      .waitForUpdateApply()
+      .then(() => this.state.getValidValue());
   }
 
   public applyFlatErrorsList(flatErrors: TControlExternalErrorFlat[]): void {

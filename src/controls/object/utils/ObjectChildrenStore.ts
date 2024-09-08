@@ -2,9 +2,9 @@ import { TControlValue } from '../../../TControlValue';
 import { TControlData, TControlDataFields } from '../../../control-data';
 import { TControlNames } from '../../../names';
 import {
-    TControlCustomError,
-    TControlUpdateData,
-    TFormFields,
+  TControlCustomError,
+  TControlUpdateData,
+  TFormFields,
 } from '../../../types';
 import { FormValidationType } from '../../../validation';
 import { TControlObjectValue } from '../../../values';
@@ -27,7 +27,10 @@ interface IProps<Value extends TControlObjectValue, DescendantsContext> {
 type TChildrenMap<Value extends TControlObjectValue> = {
   [Key in keyof Value]: {
     control: TControl<Value[Key]>;
-    callbacks: TControlInternalCallbacks<Value[Key], TControlUpdateData<Value[Key]>>;
+    callbacks: TControlInternalCallbacks<
+      Value[Key],
+      TControlUpdateData<Value[Key]>
+    >;
   };
 };
 
@@ -65,20 +68,22 @@ export class ObjectChildrenStore<
     return this.statesStore.getAnyChildIsDefined();
   }
 
-  private readonly statesStore = new ControlChildrenStatesStore<keyof Value & string>();
+  private readonly statesStore = new ControlChildrenStatesStore<
+    keyof Value & string
+  >();
   private readonly childrenMap: TChildrenMap<Value>;
 
   constructor(
     private readonly fieldsData: TControlDataFields<Value, DescendantsContext>,
     private callbacks: TObjectChildrenStoreCallbacks<Value>,
-    props: IProps<Value, DescendantsContext>
+    props: IProps<Value, DescendantsContext>,
   ) {
     this.childrenMap = this.createChildrenMap(props);
   }
 
   public applyChildrenChanges(
     updatesPre: TObjectExtraUpdateProps<Value>['childrenUpdates'],
-    comparator: Comparator<Value>
+    comparator: Comparator<Value>,
   ): boolean {
     const updates = this.getFinalChildrenUpdates(updatesPre, comparator);
     if (!updates) {
@@ -89,7 +94,9 @@ export class ObjectChildrenStore<
     for (const keyStr in updates) {
       const key = keyStr as keyof Value & string;
 
-      const newControl = this.childrenMap[key].callbacks.applyUpdate(updates[key]!);
+      const newControl = this.childrenMap[key].callbacks.applyUpdate(
+        updates[key]!,
+      );
       if (newControl) {
         anyChildChanged = true;
         this.childrenMap[key].control = newControl;
@@ -98,6 +105,14 @@ export class ObjectChildrenStore<
     }
 
     return anyChildChanged;
+  }
+
+  public getAllChildrenAreValid(): Promise<boolean> {
+    return Promise.all(
+      Object.keys(this.childrenMap).map((key) =>
+        this.childrenMap[key as keyof Value].callbacks.getValidValue(),
+      ),
+    ).then((isValids) => isValids.every(([isValid]) => isValid));
   }
 
   public setCallbacks(callbacks: TObjectChildrenStoreCallbacks<Value>): void {
@@ -112,7 +127,9 @@ export class ObjectChildrenStore<
     }
   }
 
-  private createChildrenMap(props: IProps<Value, DescendantsContext>): TChildrenMap<Value> {
+  private createChildrenMap(
+    props: IProps<Value, DescendantsContext>,
+  ): TChildrenMap<Value> {
     const result: Partial<TChildrenMap<Value>> = {};
 
     for (const keyStr in this.fieldsData) {
@@ -144,10 +161,13 @@ export class ObjectChildrenStore<
 
   private getFinalChildrenUpdates(
     updateData: TObjectExtraUpdateProps<Value>['childrenUpdates'],
-    comparator: Comparator<Value>
+    comparator: Comparator<Value>,
   ): TObjectExtraUpdateProps<Value>['childrenUpdates'] {
     const customErrorsMap = this.getCustomErrorsMap(comparator.customErrors);
-    if (!comparator.shouldEnrichDescendantsContext && Object.keys(customErrorsMap).length === 0) {
+    if (
+      !comparator.shouldEnrichDescendantsContext &&
+      Object.keys(customErrorsMap).length === 0
+    ) {
       return updateData;
     }
 
@@ -158,7 +178,8 @@ export class ObjectChildrenStore<
         initialUpdate: updateData?.[key] ?? {},
         customErrors: customErrorsMap[key],
         getDefaultValue: (defaultValue) => defaultValue![key],
-        getNames: () => this.callbacks.createChildNames(comparator.names.currentValue, key),
+        getNames: () =>
+          this.callbacks.createChildNames(comparator.names.currentValue, key),
       });
     }
 
@@ -166,7 +187,7 @@ export class ObjectChildrenStore<
   }
 
   private getCustomErrorsMap(
-    customErrors: TControlCustomError[]
+    customErrors: TControlCustomError[],
   ): Partial<Record<keyof Value, TControlCustomError[]>> {
     const result: Partial<Record<keyof Value, TControlCustomError[]>> = {};
 

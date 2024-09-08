@@ -233,6 +233,18 @@ export class ControlArray<
     this.state.childrenStore.destroy();
   }
 
+  protected readonly getValidValue = (): Promise<[boolean, Value | null]> => {
+    const value = this.value;
+    return Promise.all([
+      this.validator.checkIsValid(value, this.context),
+      this.state.childrenStore.getAllChildrenAreValid(),
+    ]).then((valids) => {
+      return valids.every((item) => item)
+        ? [true, value as Value]
+        : [false, null];
+    });
+  };
+
   private cloneWithChanges(comparator: Comparator<Value>): TControl<Value> {
     this.state.descendantsContext = comparator.descendantsContext.currentValue;
     return ControlArray.modify<Value>(
